@@ -9,10 +9,10 @@ class Pawn:
 
     def move(self, x, y):
         if self.color == "white":
-            if (x == self.x and y == self.y + 1) or (x == self.x and y == self.y + 2):
+            if (x == self.x + 1 and y == self.y) or (self.x == 1 and y == self.y and x == self.x + 2):
                 return True     # The pawn is moving one or two squares
         elif self.color == "black":
-            if (x == self.x and y == self.y - 1) or (x == 6 and y == self.y - 2):
+            if (x == self.x - 1 and y == self.y) or (self.x == 6 and y == self.y and x == self.x - 2):
                 return True     # The pawn is moving one or two squares
         return  False    # The pawn is not moving, moving more than two squares or moving in the wrong direction
 
