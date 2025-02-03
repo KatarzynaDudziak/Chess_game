@@ -1,96 +1,97 @@
 class Pawn:
-    def __init__(self, color, x, y):
+    def __init__(self, color):
         self.color = color
-        self.x = x   # The row: from 0 to 7
-        self.y = y   # The column: from 0 to 7
 
     def __str__(self):
-        return f"{self.color} {self.__class__.__name__} at {self.x}{self.y}"
+        return f"{self.color} {self.__class__.__name__}"
 
-    def move(self, x, y):
+    def can_move(self, pawn_x, pawn_y, x, y):
+        return move_forward_one_square(self.color, pawn_x, pawn_y, x, y) or move_forward_two_squares(self.color, pawn_x, pawn_y, x, y)
+
+    def can_capture(self, pawn_x, pawn_y, x, y):
         if self.color == "white":
-            if (x == self.x + 1 and y == self.y) or (self.x == 1 and y == self.y and x == self.x + 2):
-                return True     # The pawn is moving one or two squares
+            if (x == pawn_x + 1 and y == pawn_y + 1) or (x == pawn_x + 1 and y == pawn_y - 1) and 0 <= x <= 7 and 0 <= y <= 7:
+                return True
         elif self.color == "black":
-            if (x == self.x - 1 and y == self.y) or (self.x == 6 and y == self.y and x == self.x - 2):
-                return True     # The pawn is moving one or two squares
-        return  False    # The pawn is not moving, moving more than two squares or moving in the wrong direction
-
-    def capture(self, x, y):
-        if self.color == "white":
-            if (x == self.x + 1 and y == self.y + 1) or (x == self.x + 1 and y == self.y - 1):
-                return True     # The pawn is capturing another pawn
-        elif self.color == "black":
-            if (x == self.x - 1 and y == self.y + 1) or (x == self.x - 1 and y == self.y - 1):
-                return True     # The pawn is capturing another pawn
-        return False    # The pawn is not capturing or capturing in the wrong direction
-
+            if (x == pawn_x - 1 and y == pawn_y + 1) or (x == pawn_x - 1 and y == pawn_y - 1) and 0 <= x <= 7 and 0 <= y <= 7:
+                return True
+        return False
+    
 
 class Bishop(Pawn):
-    def __init__(self, color, x, y):
-        super().__init__(color, x, y)
+    def __init__(self, color):
+        super().__init__(color)
+    
+    def can_move(self, bishop_x, bishop_y, x, y):
+        return move_diagonally(bishop_x, bishop_y, x, y)
 
-    def move(self, x, y):
-        pass
-
-    def capture(self, x, y):
-        pass
-
+    def can_capture(self, bishop_x, bishop_y, x, y):
+        return move_diagonally(bishop_x, bishop_y, x, y)
+    
 
 class Rook(Pawn):
-    def __init__(self, color, x, y):
-        super().__init__(color, x, y)
+    def __init__(self, color):
+        super().__init__(color)
 
-    def move(self, x, y):
+    def can_move(self, rook_x, rook_y, x, y):
         pass
 
-    def capture(self, x, y):
+    def can_capture(self, rook_x, rook_y, x, y):
         pass
 
 
 class Knight(Pawn):
-    def __init__(self, color, x, y):
-        super().__init__(color, x, y)
+    def __init__(self, color):
+        super().__init__(color)
 
-    def move(self, x, y):
+    def can_move(self, knight_x, knight_y, x, y):
         pass
 
-    def capture(self, x, y):
+    def can_capture(self, knight_x, knight_y, x, y):
         pass
 
 
 class Queen(Pawn):
-    def __init__(self, color, x, y):
-        super().__init__(color, x, y)
+    def __init__(self, color):
+        super().__init__(color)
 
-    def move(self, x, y):
+    def can_move(self, queen_x, queen_y, x, y):
         pass
 
-    def capture(self, x, y):
+    def can_capture(self, queen_x, queen_y, x, y):
         pass
 
 
 class King(Pawn):
-    def __init__(self, color, x, y):
-        super().__init__(color, x, y)
+    def __init__(self, color):
+        super().__init__(color)
 
-    def move(self, x, y):
+    def can_move(self, king_x, king_y, x, y):
         pass
 
-    def capture(self, x, y):
+    def can_capture(self, king_x, king_y, x, y):
         pass
 
 
-pawn = Pawn("white", 0, 1)
-bishop = Bishop("black", 2, 1)
-rook = Rook("white", 2, 1)
-knight = Knight("black", 5, 1)
-queen = Queen("white", 3, 1)
-king = King("black", 6, 1)
+def move_diagonally(bishop_x, bishop_y, x, y):
+    if abs(x - bishop_x) == abs(y - bishop_y) and 0 <= x <= 7 and 0 <= y <= 7:
+        return True
+    return False
 
-print(pawn)
-print(bishop)
-print(rook)
-print(knight)
-print(queen)
-print(king)
+def move_forward_one_square(color, pawn_x, pawn_y, x, y):
+    if color == "white":
+        if x == pawn_x + 1 and y == pawn_y and 0 <= x <= 7 and 0 <= y <= 7:
+            return True
+    elif color == "black":
+        if x == pawn_x - 1 and y == pawn_y and 0 <= x <= 7 and 0 <= y <= 7:
+            return True
+    return False
+    
+def move_forward_two_squares(color, pawn_x, pawn_y, x, y):
+    if color == "white":
+        if pawn_x == 1 and x == pawn_x + 2 and y == pawn_y and 0 <= x <= 7 and 0 <= y <= 7:
+            return True
+    elif color == "black":
+        if pawn_x == 6 and x == pawn_x - 2 and y == pawn_y and 0 <= x <= 7 and 0 <= y <= 7:
+            return True
+    return False
