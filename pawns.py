@@ -36,7 +36,7 @@ class Rook(Pawn):
         super().__init__(color)
 
     def can_move(self, current_pos: Point, new_pos: Point) -> bool:
-        return is_moving_sideways(current_pos, new_pos)
+        return is_moving_sideways(current_pos, new_pos) or is_moving_forward(self.color, current_pos, new_pos)
 
     def can_capture(self, current_pos: Point, new_pos: Point):
         pass
