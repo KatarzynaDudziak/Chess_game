@@ -1,8 +1,17 @@
 from point import Point
 
+
 class Pawn:
     def __init__(self, color: str):
         self.color = color
+
+    def __eq__(self, other):
+        if isinstance(other, Pawn):
+            return self.color == other.color
+        return False
+
+    def __hash__(self):
+        return hash(self.color)
 
     def __str__(self):
         return f"{self.color} {self.__class__.__name__}"
@@ -19,7 +28,7 @@ class Pawn:
                 return True
         return False
     
-
+    
 class Bishop(Pawn):
     def __init__(self, color: str):
         super().__init__(color)
