@@ -22,7 +22,6 @@ class Board:
             ]
         
         self.movements_history: list[tuple[Point, Point]] = []
-        self.available_pawns: dict[Point, Pawn] = {}
         self.captured_pawns: list[Pawn] = []
         self.available_moves: list[tuple[tuple[Point, Pawn], Point]] = []
         self.available_captures: list[tuple[tuple[Point, Pawn], Point]] = []        
@@ -30,33 +29,29 @@ class Board:
     def __str__(self):
         board_str = ""
         for row in reversed(self.board):
-            board_str += "".join(row) + "\n"
+            board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__|" for pawn in row]) + "\n"
         return board_str
 
     def set_pawns(self):
         for pawn, position in self.white_pawns:
-            self.board[position.y][position.x] = f"|{pawn.color[0].upper()}{pawn.__class__.__name__[0]}|"
-            self.available_pawns[position] = pawn
+            self.board[position.y][position.x] = pawn
             
         for pawn, position in self.black_pawns:
-            self.board[position.y][position.x] = f"|{pawn.color[0].upper()}{pawn.__class__.__name__[0]}|"
-            self.available_pawns[position] = pawn
+            self.board[position.y][position.x] = pawn
 
     def move_pawn(self, pawn: Pawn, current_pos: Point, new_pos: Point):
-        if current_pos in self.available_pawns.keys() and self.available_pawns[current_pos] == pawn:
-            if pawn.can_move(current_pos, new_pos):
-                self.available_pawns[new_pos] = self.available_pawns.pop(current_pos)
-                self.movements_history.append((current_pos, new_pos))
-                self.board[current_pos.y][current_pos.x] = "|__|"
-                self.board[new_pos.y][new_pos.x] = f"|{pawn.color[0].upper()}{pawn.__class__.__name__[0]}|" 
+        if self.board[current_pos.y][current_pos.x] == pawn and self.is_move_valid(pawn, current_pos, new_pos):
+            self.board[current_pos.y][current_pos.x] = "|__|"
+            self.board[new_pos.y][new_pos.x] = pawn
+            self.movements_history.append((current_pos, new_pos))
 
+    def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        if pawn.can_move(current_pos, new_pos):
+            if self.board[new_pos.y][new_pos.x] == "|__|":
+                return True
+        return False
+    
     def capture_pawn(self, current_pos: Point, new_pos: Point):
-        pass
-
-    def is_move_valid(self, current_pos: Point, new_pos: Point):
-        pass
-
-    def is_place_occupied(self, position: Point):
         pass
 
     def is_out_of_bounds(self, position: Point):
@@ -83,3 +78,9 @@ class Board:
     def get_available_captures(self):
         pass
 
+
+board = Board(8, 8)
+board.set_pawns()
+board.move_pawn(Pawn("white"), Point(0, 1), Point(0, 2))
+board.move_pawn(Pawn("black"), Point(0, 6), Point(0, 4))
+print(board)

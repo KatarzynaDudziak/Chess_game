@@ -14,7 +14,7 @@ class Pawn:
         return hash(self.color)
 
     def __str__(self):
-        return f"{self.color} {self.__class__.__name__}"
+        return f"{(self.color[0]).upper()}{self.__class__.__name__[0]}"
 
     def can_move(self, current_pos: Point, new_pos: Point) -> bool:
         return is_moving_forward_one_square(self.color, current_pos, new_pos) or is_moving_forward_two_squares(self.color, current_pos, new_pos)
