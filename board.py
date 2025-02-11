@@ -1,3 +1,5 @@
+from typing import List
+
 from point import Point
 from pawns import Pawn, Rook, Bishop, Knight, Queen, King
 
@@ -32,17 +34,26 @@ class Board:
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__|" for pawn in row]) + "\n"
         return board_str
 
-    def set_pawns(self):
-        for pawn, position in self.white_pawns:
-            self.board[position.y][position.x] = pawn
-            
-        for pawn, position in self.black_pawns:
-            self.board[position.y][position.x] = pawn
+    def set_pawns(self, pawns: List[tuple]):
+        for pawn, position in pawns:
+            self.set_pawn_at_the_position(pawn, position)
+
+    def set_pawn_at_the_position(self, pawn: Pawn, position: Point):
+        self.board[position.y][position.x] = pawn
+
+    def set_white_pawns(self):
+        self.set_pawns(self.white_pawns)
+
+    def set_black_pawns(self):
+        self.set_pawns(self.black_pawns)
+    
+    def set_empty_position(self, position: Point):
+        self.board[position.y][position.x] = " "
 
     def move_pawn(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         if self.board[current_pos.y][current_pos.x] == pawn and self.is_move_valid(pawn, current_pos, new_pos):
-            self.board[current_pos.y][current_pos.x] = "|__|"
-            self.board[new_pos.y][new_pos.x] = pawn
+            self.set_empty_position(current_pos)
+            self.set_pawn_at_the_position(pawn, new_pos)
             self.movements_history.append((current_pos, new_pos))
 
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
@@ -80,7 +91,8 @@ class Board:
 
 
 board = Board(8, 8)
-board.set_pawns()
+board.set_white_pawns()
+board.set_black_pawns()
 board.move_pawn(Pawn("white"), Point(0, 1), Point(0, 2))
 board.move_pawn(Pawn("black"), Point(0, 6), Point(0, 4))
 print(board)
