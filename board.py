@@ -1,7 +1,7 @@
 from typing import List
 
 from point import Point
-from pawns import Pawn, Rook, Bishop, Knight, Queen, King
+from pawns import *
 
 
 class Board:
@@ -10,17 +10,17 @@ class Board:
         self.height = height
         self.board = [["|__|" for _ in range(width)] for _ in range(height)]
         self.white_pawns = [
-            (Rook("white"), Point(0,0)), (Knight("white"), Point(1,0)), (Bishop("white"), Point(2,0)), (Queen("white"), Point(3,0)),
-            (King("white"), Point(4,0)), (Bishop("white"), Point(5,0)), (Knight("white"), Point(6,0)), (Rook("white"), Point(7,0)),
-            (Pawn("white"), Point(0,1)), (Pawn("white"), Point(1,1)), (Pawn("white"), Point(2,1)), (Pawn("white"), Point(3,1)),
-            (Pawn("white"), Point(4,1)), (Pawn("white"), Point(5,1)), (Pawn("white"), Point(6,1)), (Pawn("white"), Point(7,1))
+            (WhiteRook, Point(0,0)), (WhiteKnight, Point(1,0)), (WhiteBishop, Point(2,0)), (WhiteQueen, Point(3,0)),
+            (WhiteKing, Point(4,0)), (WhiteBishop, Point(5,0)), (WhiteKnight, Point(6,0)), (WhiteRook, Point(7,0)),
+            (WhitePawn, Point(0,1)), (WhitePawn, Point(1,1)), (WhitePawn, Point(2,1)), (WhitePawn, Point(3,1)),
+            (WhitePawn, Point(4,1)), (WhitePawn, Point(5,1)), (WhitePawn, Point(6,1)), (WhitePawn, Point(7,1))
             ]
             
         self.black_pawns = [
-            (Rook("black"), Point(0,7)), (Knight("black"), Point(1,7)), (Bishop("black"), Point(2,7)), (Queen("black"), Point(4,7)),
-            (King("black"), Point(3,7)), (Bishop("black"), Point(5,7)), (Knight("black"), Point(6,7)), (Rook("black"), Point(7,7)),
-            (Pawn("black"), Point(0,6)), (Pawn("black"), Point(1,6)), (Pawn("black"), Point(2,6)), (Pawn("black"), Point(3,6)),
-            (Pawn("black"), Point(4,6)), (Pawn("black"), Point(5,6)), (Pawn("black"), Point(6,6)), (Pawn("black"), Point(7,6))
+            (BlackRook, Point(0,7)), (BlackKnight, Point(1,7)), (BlackBishop, Point(2,7)), (BlackQueen, Point(4,7)),
+            (BlackKing, Point(3,7)), (BlackBishop, Point(5,7)), (BlackKnight, Point(6,7)), (BlackRook, Point(7,7)),
+            (BlackPawn, Point(0,6)), (BlackPawn, Point(1,6)), (BlackPawn, Point(2,6)), (BlackPawn, Point(3,6)),
+            (BlackPawn, Point(4,6)), (BlackPawn, Point(5,6)), (BlackPawn, Point(6,6)), (BlackPawn, Point(7,6))
             ]
         
         self.movements_history: list[tuple[Point, Point]] = []
@@ -31,11 +31,12 @@ class Board:
     def __str__(self):
         board_str = ""
         for row in reversed(self.board):
-            board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__|" for pawn in row]) + "\n"
+            board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
         return board_str
 
     def set_pawns(self, pawns: List[tuple]):
         for pawn, position in pawns:
+            pawn = pawn()
             self.set_pawn_at_the_position(pawn, position)
 
     def set_pawn_at_the_position(self, pawn: Pawn, position: Point):
@@ -50,8 +51,9 @@ class Board:
     def set_empty_position(self, position: Point):
         self.board[position.y][position.x] = " "
 
-    def move_pawn(self, pawn: Pawn, current_pos: Point, new_pos: Point):
-        if self.board[current_pos.y][current_pos.x] == pawn and self.is_move_valid(pawn, current_pos, new_pos):
+    def move_pawn(self, current_pos: Point, new_pos: Point):
+        pawn = self.board[current_pos.y][current_pos.x]
+        if isinstance(pawn, Pawn) and self.is_move_valid(pawn, current_pos, new_pos):
             self.set_empty_position(current_pos)
             self.set_pawn_at_the_position(pawn, new_pos)
             self.movements_history.append((current_pos, new_pos))
@@ -93,6 +95,6 @@ class Board:
 board = Board(8, 8)
 board.set_white_pawns()
 board.set_black_pawns()
-board.move_pawn(Pawn("white"), Point(0, 1), Point(0, 2))
-board.move_pawn(Pawn("black"), Point(0, 6), Point(0, 4))
+board.move_pawn(Point(0, 1), Point(0, 2))
+board.move_pawn(Point(0, 6), Point(0, 4))
 print(board)
