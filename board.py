@@ -35,8 +35,8 @@ class Board:
         return board_str
 
     def set_pawns(self, pawns: List[tuple]):
-        for pawn, position in pawns:
-            pawn = pawn()
+        for pawn_class, position in pawns:
+            pawn = pawn_class()
             self.set_pawn_at_the_position(pawn, position)
 
     def set_pawn_at_the_position(self, pawn: Pawn, position: Point):
@@ -53,25 +53,56 @@ class Board:
 
     def move_pawn(self, current_pos: Point, new_pos: Point):
         pawn = self.board[current_pos.y][current_pos.x]
-        if isinstance(pawn, Pawn) and self.is_move_valid(pawn, current_pos, new_pos):
-            self.set_empty_position(current_pos)
-            self.set_pawn_at_the_position(pawn, new_pos)
-            self.movements_history.append((current_pos, new_pos))
+        if isinstance(pawn, Pawn):
+            if self.is_capture(pawn, current_pos, new_pos):
+                self.capture(current_pos)
+            elif self.is_move_valid(pawn, current_pos, new_pos):
+                self.set_empty_position(current_pos)
+                self.set_pawn_at_the_position(pawn, new_pos)
+                self.movements_history.append((current_pos, new_pos))
 
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         if pawn.can_move(current_pos, new_pos):
             if self.board[new_pos.y][new_pos.x] == "|__|":
                 return True
-        return False
+            return False
     
-    def capture_pawn(self, current_pos: Point, new_pos: Point):
-        pass
+    def capture(self, current_pos: Point):
+        self.set_empty_position(current_pos)
+        
+    def is_capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        if isinstance(pawn, WhitePawn):
+            capture_positions = [
+                Point(current_pos.x + 1, current_pos.y + 1),
+                Point(current_pos.x - 1, current_pos.y + 1)
+            ]
+        elif isinstance(pawn, BlackPawn):
+            capture_positions = [
+                Point(current_pos.x + 1, current_pos.y - 1),
+                Point(current_pos.x - 1, current_pos.y - 1)
+            ]
+        else:
+            capture_positions = [new_pos]
 
-    def is_out_of_bounds(self, position: Point):
-        pass
+        for pos in capture_positions:
+            if self.is_not_out_of_bounds(pos):
+                continue
+            if isinstance(self.board[pos.y][pos.x], Pawn) and self.board[pos.y][pos.x].color != pawn.color:
+                target_pawn = self.board[pos.y][pos.x]
+                if pawn.can_capture(current_pos, pos):
+                    self.captured_pawns.append(target_pawn)
+                    self.set_pawn_at_the_position(pawn, pos)
+                    self.movements_history.append((current_pos, pos))
+                    return True
+        return False
+
+    def is_not_out_of_bounds(self, position: Point):
+        return not (0 <= position.x < self.width and 0 <= position.y < self.height)
 
     def check_whose_turn(self):
-        pass
+        if len(self.movements_history) % 2 == 0:
+            return Color.WHITE
+        return Color.BLACK
 
     def is_check(self):
         pass
@@ -95,6 +126,16 @@ class Board:
 board = Board(8, 8)
 board.set_white_pawns()
 board.set_black_pawns()
-board.move_pawn(Point(0, 1), Point(0, 2))
-board.move_pawn(Point(0, 6), Point(0, 4))
+board.move_pawn(Point(0, 1), Point(0, 3))
+board.move_pawn(Point(1, 6), Point(1, 4))
+board.move_pawn(Point(1, 4), Point(1, 3))
+board.move_pawn(Point(1, 1), Point(1, 2))
+board.move_pawn(Point(0, 3), Point(1, 2))
+board.move_pawn(Point(3, 0), Point(1, 2))
+board.move_pawn(Point(5, 7), Point(1, 3))
+board.move_pawn(Point(1, 2), Point(1, 3))
+board.move_pawn(Point(1, 7), Point(2, 5))
+board.move_pawn(Point(0, 0), Point(0, 3))
+board.move_pawn(Point(2, 5), Point(1, 3))
+board.move_pawn(Point(0, 3), Point(1, 3))
 print(board)
