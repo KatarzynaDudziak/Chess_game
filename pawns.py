@@ -1,4 +1,7 @@
 from typing import Any, Callable
+import logging
+logger = logging.getLogger(__name__)
+
 from point import Point
 from enum import Enum
 
@@ -206,6 +209,7 @@ def is_moving_forward_one_square(color: Callable[[Enum], Any], current_pos: Poin
         return new_pos.y == current_pos.y + 1 and new_pos.x == current_pos.x
     elif color == Color.BLACK:
         return new_pos.y == current_pos.y - 1 and new_pos.x == current_pos.x
+    logger.info("Pawn is not moving forward")
     return False
 
 
@@ -214,6 +218,7 @@ def is_moving_forward_two_squares(color: Callable[[Enum], Any], current_pos: Poi
         return current_pos.y == 1 and new_pos.y == current_pos.y + 2 and new_pos.x == current_pos.x
     elif color == Color.BLACK:
         return current_pos.y == 6 and new_pos.y == current_pos.y - 2 and new_pos.x == current_pos.x
+    logger.info("Pawn is not moving forward two squares")
     return False
 
 
@@ -222,6 +227,7 @@ def is_moving_forward(color: str, current_pos: Point, new_pos: Point) -> bool:
         return new_pos.y > current_pos.y and new_pos.x == current_pos.x
     elif color == Color.BLACK:
         return new_pos.y < current_pos.y and new_pos.x == current_pos.x
+    logger.info("Pawn is not moving forward")
     return False
 
 

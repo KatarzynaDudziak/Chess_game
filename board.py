@@ -1,4 +1,6 @@
 from typing import List
+import logging
+logger = logging.getLogger(__name__) 
 
 from point import Point
 from pawns import *
@@ -32,12 +34,14 @@ class Board:
         board_str = ""
         for row in reversed(self.board):
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
+            logger.info("Created board string")
         return board_str
 
     def set_pawns(self, pawns: List[tuple]):
         for pawn_class, position in pawns:
             pawn = pawn_class()
             self.set_pawn_at_the_position(pawn, position)
+            logger.info("Set pawns on the board")
 
     def set_pawn_at_the_position(self, pawn: Pawn, position: Point):
         self.board[position.y][position.x] = pawn
@@ -56,15 +60,18 @@ class Board:
         if isinstance(pawn, Pawn):
             if self.is_capture_valid(pawn, current_pos, new_pos):
                 self.capture(pawn, current_pos, new_pos)
+                logger.info("Captured opponent's pawn")
             elif self.is_move_valid(pawn, current_pos, new_pos):
                 self.set_pawn_at_the_position(pawn, new_pos)
                 self.set_empty_position(current_pos)
                 self.movements_history.append((current_pos, new_pos))
+                logger.info("Moved pawn")
 
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         if pawn.can_move(current_pos, new_pos):
             if isinstance(self.board[new_pos.y][new_pos.x], str):
                 return True
+        logger.info("Move is not valid")
         return False
     
     def get_opponents_positions(self, pawn: Pawn, current_pos: Point, new_pos: Point):
@@ -89,6 +96,7 @@ class Board:
                 continue
             if isinstance(self.board[pos.y][pos.x], Pawn) and self.board[pos.y][pos.x].color != pawn.color:
                 return self.board[pos.y][pos.x], pos
+        logger.info("No opponent found")
         return
     
     def is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
@@ -97,6 +105,7 @@ class Board:
             target_pawn, pos = target_pawn
             if pawn.can_capture(current_pos, Point(pos.x, pos.y)) and target_pawn:
                 return True
+        logger.info("Capture is not valid")
         return
 
     def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
