@@ -203,9 +203,9 @@ def is_moving_diagonally(current_pos: Point, new_pos: Point):
 
 def is_moving_forward_one_square(color: Callable[[Enum], Any], current_pos: Point, new_pos: Point) -> bool:
     if color == Color.WHITE:
-        return new_pos.y == current_pos.y and new_pos.x == current_pos.x
+        return new_pos.y == current_pos.y + 1 and new_pos.x == current_pos.x
     elif color == Color.BLACK:
-        return new_pos.y == current_pos.y and new_pos.x == current_pos.x
+        return new_pos.y == current_pos.y - 1 and new_pos.x == current_pos.x
     return False
 
 

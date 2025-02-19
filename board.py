@@ -57,13 +57,13 @@ class Board:
             if self.is_capture_valid(pawn, current_pos, new_pos):
                 self.capture(pawn, current_pos, new_pos)
             elif self.is_move_valid(pawn, current_pos, new_pos):
-                self.set_empty_position(current_pos)
                 self.set_pawn_at_the_position(pawn, new_pos)
+                self.set_empty_position(current_pos)
                 self.movements_history.append((current_pos, new_pos))
 
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         if pawn.can_move(current_pos, new_pos):
-            if self.board[new_pos.y][new_pos.x] == "|__|":
+            if isinstance(self.board[new_pos.y][new_pos.x], str):
                 return True
         return False
     
@@ -121,13 +121,10 @@ class Board:
         pass
 
     def get_movements_history(self):
-        pass
-
-    def get_available_pawns(self):
-        pass
+        return self.movements_history
 
     def get_available_moves(self):
-        pass
+        return self.available_moves
 
     def get_available_captures(self):
         pass
@@ -137,15 +134,4 @@ board = Board(8, 8)
 board.set_white_pawns()
 board.set_black_pawns()
 board.move_pawn(Point(0, 1), Point(0, 3))
-board.move_pawn(Point(1, 6), Point(1, 4))
-board.move_pawn(Point(1, 4), Point(1, 3))
-board.move_pawn(Point(1, 1), Point(1, 2))
-board.move_pawn(Point(0, 3), Point(1, 2))
-board.move_pawn(Point(3, 0), Point(1, 2))
-board.move_pawn(Point(5, 7), Point(1, 3))
-board.move_pawn(Point(1, 2), Point(1, 3))
-board.move_pawn(Point(1, 7), Point(2, 5))
-board.move_pawn(Point(0, 0), Point(0, 3))
-board.move_pawn(Point(2, 5), Point(1, 3))
-board.move_pawn(Point(0, 3), Point(1, 3))
 print(board)
