@@ -54,8 +54,8 @@ class Board:
     def move_pawn(self, current_pos: Point, new_pos: Point):
         pawn = self.board[current_pos.y][current_pos.x]
         if isinstance(pawn, Pawn):
-            if self.is_capture(pawn, current_pos, new_pos):
-                self.capture(current_pos)
+            if self.is_capture_valid(pawn, current_pos, new_pos):
+                self.capture(pawn, current_pos, new_pos)
             elif self.is_move_valid(pawn, current_pos, new_pos):
                 self.set_empty_position(current_pos)
                 self.set_pawn_at_the_position(pawn, new_pos)
@@ -65,12 +65,9 @@ class Board:
         if pawn.can_move(current_pos, new_pos):
             if self.board[new_pos.y][new_pos.x] == "|__|":
                 return True
-            return False
+        return False
     
-    def capture(self, current_pos: Point):
-        self.set_empty_position(current_pos)
-        
-    def is_capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+    def get_opponents_positions(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         if isinstance(pawn, WhitePawn):
             capture_positions = [
                 Point(current_pos.x + 1, current_pos.y + 1),
@@ -83,18 +80,31 @@ class Board:
             ]
         else:
             capture_positions = [new_pos]
-
+        return capture_positions
+    
+    def get_opponent(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        capture_positions = self.get_opponents_positions(pawn, current_pos, new_pos)
         for pos in capture_positions:
             if self.is_not_out_of_bounds(pos):
                 continue
             if isinstance(self.board[pos.y][pos.x], Pawn) and self.board[pos.y][pos.x].color != pawn.color:
-                target_pawn = self.board[pos.y][pos.x]
-                if pawn.can_capture(current_pos, pos):
-                    self.captured_pawns.append(target_pawn)
-                    self.set_pawn_at_the_position(pawn, pos)
-                    self.movements_history.append((current_pos, pos))
-                    return True
-        return False
+                return self.board[pos.y][pos.x], pos
+        return
+    
+    def is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        target_pawn = self.get_opponent(pawn, current_pos, new_pos)
+        if target_pawn:
+            target_pawn, pos = target_pawn
+            if pawn.can_capture(current_pos, Point(pos.x, pos.y)) and target_pawn:
+                return True
+        return
+
+    def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        target_pawn, target_pawn_pos = self.get_opponent(pawn, current_pos, new_pos)
+        self.captured_pawns.append(target_pawn)
+        self.set_pawn_at_the_position(pawn, target_pawn_pos)
+        self.movements_history.append((current_pos, target_pawn_pos))
+        self.set_empty_position(current_pos)
 
     def is_not_out_of_bounds(self, position: Point):
         return not (0 <= position.x < self.width and 0 <= position.y < self.height)
