@@ -180,7 +180,7 @@ class King(Pawn):
         return abs(new_pos.x - current_pos.x) <= 1 and abs(new_pos.y - current_pos.y) <= 1
 
     def can_capture(self, current_pos: Point, new_pos: Point):
-        self.can_move(current_pos, new_pos)
+        return self.can_move(current_pos, new_pos)
 
 
 class WhiteKing(King):
