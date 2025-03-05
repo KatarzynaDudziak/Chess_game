@@ -29,6 +29,9 @@ class Board:
         self.captured_pawns: list[Pawn] = []
         self.available_moves: list[tuple[tuple[Point, Pawn], Point]] = []
         self.available_captures: list[tuple[tuple[Point, Pawn], Point]] = []        
+    
+    def __getitem__(self, index):
+        return self.board[index]
 
     def __str__(self):
         board_str = ""
@@ -40,10 +43,16 @@ class Board:
     def set_pawns(self, pawns: List[tuple]):
         for pawn_class, position in pawns:
             pawn = pawn_class()
-            self.set_pawn_at_the_position(pawn, position)
+            self.board[position.y][position.x] = pawn
             logger.info("Set pawns on the board")
 
-    def set_pawn_at_the_position(self, pawn: Pawn, position: Point):
+    def set_pawn_at_the_position(self, pawn: Pawn, current_pos: Point, position: Point):
+        if self.check_whose_turn() == Color.WHITE:
+            self.white_pawns.remove((type(pawn), current_pos))
+            self.white_pawns.append((type(pawn), position))
+        elif self.check_whose_turn() == Color.BLACK:
+            self.black_pawns.remove((type(pawn), current_pos))
+            self.black_pawns.append((type(pawn), position))
         self.board[position.y][position.x] = pawn
 
     def set_white_pawns(self):
@@ -60,62 +69,72 @@ class Board:
         if isinstance(pawn, Pawn):
             if self.is_capture_valid(pawn, current_pos, new_pos):
                 self.capture(pawn, current_pos, new_pos)
-                logger.info("Captured opponent's pawn")
             elif self.is_move_valid(pawn, current_pos, new_pos):
-                self.set_pawn_at_the_position(pawn, new_pos)
+                self.set_pawn_at_the_position(pawn, current_pos, new_pos)
                 self.set_empty_position(current_pos)
                 self.movements_history.append((current_pos, new_pos))
-                logger.info("Moved pawn")
-
+                if self.is_check():
+                    print("Check")
+            
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
-        if pawn.can_move(current_pos, new_pos):
+        if isinstance(pawn, Knight):
+            if pawn.can_move(current_pos, new_pos):
+                if isinstance(self.board[new_pos.y][new_pos.x], str):
+                    return True
+        elif pawn.can_move(current_pos, new_pos) and self.is_path_clear(current_pos, new_pos):
             if isinstance(self.board[new_pos.y][new_pos.x], str):
                 return True
         logger.info("Move is not valid")
         return False
     
-    def get_opponents_positions(self, pawn: Pawn, current_pos: Point, new_pos: Point):
-        if isinstance(pawn, WhitePawn):
-            capture_positions = [
-                Point(current_pos.x + 1, current_pos.y + 1),
-                Point(current_pos.x - 1, current_pos.y + 1)
-            ]
-        elif isinstance(pawn, BlackPawn):
-            capture_positions = [
-                Point(current_pos.x + 1, current_pos.y - 1),
-                Point(current_pos.x - 1, current_pos.y - 1)
-            ]
-        else:
-            capture_positions = [new_pos]
-        return capture_positions
+    def is_path_clear(self, current_pos: Point, new_pos: Point):  
+        dx = new_pos.x - current_pos.x
+        dy = new_pos.y - current_pos.y
+
+        step_x = (dx // abs(dx)) if dx != 0 else 0
+        step_y = (dy // abs(dy)) if dy != 0 else 0
+
+        x, y = current_pos.x + step_x, current_pos.y + step_y
+
+        while(x, y) != (new_pos.x, new_pos.y):
+            if self.board[y][x] != "|__|":
+                return False
+            x += step_x
+            y += step_y
+        return True
     
     def get_opponent(self, pawn: Pawn, current_pos: Point, new_pos: Point):
-        capture_positions = self.get_opponents_positions(pawn, current_pos, new_pos)
-        for pos in capture_positions:
-            if self.is_not_out_of_bounds(pos):
-                continue
-            if isinstance(self.board[pos.y][pos.x], Pawn) and self.board[pos.y][pos.x].color != pawn.color:
-                return self.board[pos.y][pos.x], pos
+        if not self.is_out_of_bounds(new_pos):
+            opponent = self.board[new_pos.y][new_pos.x]
+            if isinstance(opponent, Pawn) and opponent.color != pawn.color:
+                return opponent, new_pos
         logger.info("No opponent found")
-        return
+        return None
     
     def is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         target_pawn = self.get_opponent(pawn, current_pos, new_pos)
         if target_pawn:
             target_pawn, pos = target_pawn
-            if pawn.can_capture(current_pos, Point(pos.x, pos.y)) and target_pawn:
-                return True
+            if pawn.can_capture(current_pos, new_pos) and target_pawn:
+                if isinstance(pawn, Knight):
+                    return True
+                elif self.is_path_clear(current_pos, new_pos):
+                    return True
         logger.info("Capture is not valid")
         return
 
     def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         target_pawn, target_pawn_pos = self.get_opponent(pawn, current_pos, new_pos)
         self.captured_pawns.append(target_pawn)
-        self.set_pawn_at_the_position(pawn, target_pawn_pos)
+        if self.check_whose_turn() == Color.WHITE:
+            self.black_pawns.remove((type(target_pawn), target_pawn_pos))
+        elif self.check_whose_turn() == Color.BLACK:
+            self.white_pawns.remove((type(target_pawn), target_pawn_pos))
+        self.set_pawn_at_the_position(pawn, current_pos, target_pawn_pos)
         self.movements_history.append((current_pos, target_pawn_pos))
         self.set_empty_position(current_pos)
 
-    def is_not_out_of_bounds(self, position: Point):
+    def is_out_of_bounds(self, position: Point):
         return not (0 <= position.x < self.width and 0 <= position.y < self.height)
 
     def check_whose_turn(self):
@@ -124,7 +143,30 @@ class Board:
         return Color.BLACK
 
     def is_check(self):
-        pass
+        if self.check_whose_turn() == Color.WHITE:
+            return self.can_make_a_check(self.black_pawns)
+        if self.check_whose_turn() == Color.BLACK:
+            return self.can_make_a_check(self.white_pawns)
+        return False
+    
+    def can_make_a_check(self, pawns_list: list[tuple]):
+        for pawn_class, position in pawns_list:
+            pawn = self.board[position.y][position.x]
+            king_pos = self.get_king_position(pawn)
+            if isinstance(pawn, Knight):
+                if pawn.can_move(position, king_pos):
+                    return True
+            elif pawn.can_capture(position, king_pos) and self.is_path_clear(position, king_pos):
+                return True
+        return False
+
+    def get_king_position(self, opponent: Pawn):
+        for y, row in enumerate(self.board):
+            for x, piece in enumerate(row):
+                if isinstance(piece, King) and piece.color != opponent.color:
+                    return Point(x, y)
+        return None
+
 
     def is_checkmate(self):
         pass
@@ -133,7 +175,7 @@ class Board:
         return self.movements_history
 
     def get_available_moves(self):
-        return self.available_moves
+        pass
 
     def get_available_captures(self):
         pass
@@ -143,4 +185,13 @@ board = Board(8, 8)
 board.set_white_pawns()
 board.set_black_pawns()
 board.move_pawn(Point(0, 1), Point(0, 3))
+board.move_pawn(Point(1, 6), Point(1, 4))
+board.move_pawn(Point(0, 3), Point(1, 4))
+board.move_pawn(Point(3, 6), Point(3, 4))
+board.move_pawn(Point(3, 1), Point(3, 3))
+board.move_pawn(Point(3, 7), Point(3, 6))
+board.move_pawn(Point(1, 0), Point(2, 2))
+board.move_pawn(Point(3, 6), Point(3, 5))
+board.move_pawn(Point(3, 0), Point(3, 2))
+
 print(board)
