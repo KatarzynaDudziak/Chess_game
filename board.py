@@ -1,6 +1,8 @@
 from typing import List
 import logging
-logger = logging.getLogger(__name__) 
+logging.basicConfig()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 from point import Point
 from pawns import *
@@ -40,14 +42,13 @@ class Board:
 
     def move_piece(self, current_pos: Point, new_pos: Point):
         pawn = self.board[current_pos.y][current_pos.x]
-        print(self.is_check())
         if isinstance(pawn, Pawn):
             if self.is_capture_valid(pawn, current_pos, new_pos):
                 self.capture(pawn, current_pos, new_pos)
             elif self.is_move_valid(pawn, current_pos, new_pos):
                 self.execute_move(pawn, current_pos, new_pos) 
-                if self.is_check():
-                    print("Check!")
+                if self.is_check():             #How to change checking if there is a check - now I check it into two places 
+                    logger.info("Check!")
                     self.switch_turn()
         else:
             logger.info("Invalid move or pawn type")
@@ -67,7 +68,6 @@ class Board:
                     return True
                 elif self.is_path_clear(current_pos, new_pos):
                     return True
-        logger.info("Capture is not valid")
         return
     
     def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
@@ -87,20 +87,31 @@ class Board:
             opponent = self.board[new_pos.y][new_pos.x]
             if isinstance(opponent, Pawn) and opponent.color != pawn.color:
                 return opponent, new_pos
-        logger.info("No opponent found")
         return None
     
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         if isinstance(pawn, Knight):
             if pawn.can_move(current_pos, new_pos):
                 if isinstance(self.board[new_pos.y][new_pos.x], str):
-                    return True
+                    return self.simulate_move(pawn, current_pos, new_pos)
         elif pawn.can_move(current_pos, new_pos) and self.is_path_clear(current_pos, new_pos):
             if isinstance(self.board[new_pos.y][new_pos.x], str):
-                return True
+                return self.simulate_move(pawn, current_pos, new_pos)
         logger.info("Move is not valid")
         return False
     
+    def simulate_move(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        self.set_pawn_at_the_position(pawn, new_pos)
+        self.set_empty_position(current_pos)
+        if not self.is_check():
+            self.set_pawn_at_the_position(pawn, current_pos)
+            self.set_empty_position(new_pos)
+            return True
+        else:
+            self.set_pawn_at_the_position(pawn, current_pos)
+            self.set_empty_position(new_pos)
+        return False
+
     def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point):
         if pawn.color == Color.WHITE:
             self.white_pawns.remove((type(pawn), current_pos))
@@ -116,7 +127,6 @@ class Board:
         for pawn_type, position in pawns:
             pawn = pawn_type()
             self.board[position.y][position.x] = pawn
-            logger.info("Set pawns on the board")
 
     def set_white_pawns(self):
         self.set_pawns(self.white_pawns)
@@ -197,8 +207,6 @@ def main():
         current_pos = Point(int(current_pos[0]), int(current_pos[1]))
         new_pos = Point(int(new_pos[0]), int(new_pos[1]))
         board.move_piece(current_pos, new_pos)
-        print(board)
-
 
 if __name__ == "__main__":
     main()
