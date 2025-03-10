@@ -43,11 +43,14 @@ class Board:
     def move_piece(self, current_pos: Point, new_pos: Point):
         pawn = self.board[current_pos.y][current_pos.x]
         if isinstance(pawn, Pawn):
+            if pawn.color != self.check_whose_turn():
+                logger.info("It's not your turn!")
+                return
             if self.is_capture_valid(pawn, current_pos, new_pos):
                 self.capture(pawn, current_pos, new_pos)
             elif self.is_move_valid(pawn, current_pos, new_pos):
                 self.execute_move(pawn, current_pos, new_pos) 
-                if self.is_check():             #How to change checking if there is a check - now I check it into two places 
+                if self.is_check():
                     logger.info("Check!")
                     self.switch_turn()
         else:
@@ -63,14 +66,13 @@ class Board:
         target_pawn = self.get_opponent(pawn, new_pos)
         if target_pawn:
             target_pawn, pos = target_pawn
-            if pawn.can_capture(current_pos, new_pos) and target_pawn:
-                if isinstance(pawn, Knight):
+            if pawn.can_capture(current_pos, new_pos) and self.simulate_action(pawn, current_pos, new_pos) != False:
+                if self.is_path_clear(current_pos, new_pos):
                     return True
-                elif self.is_path_clear(current_pos, new_pos):
-                    return True
-        return
+        return False
     
     def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        print(self.get_opponent(pawn, new_pos))
         target_pawn, target_pawn_pos = self.get_opponent(pawn, new_pos)
         self.captured_pawns.append(target_pawn)
         if self.check_whose_turn() == Color.WHITE:
@@ -93,23 +95,24 @@ class Board:
         if isinstance(pawn, Knight):
             if pawn.can_move(current_pos, new_pos):
                 if isinstance(self.board[new_pos.y][new_pos.x], str):
-                    return self.simulate_move(pawn, current_pos, new_pos)
+                    return self.simulate_action(pawn, current_pos, new_pos)
         elif pawn.can_move(current_pos, new_pos) and self.is_path_clear(current_pos, new_pos):
             if isinstance(self.board[new_pos.y][new_pos.x], str):
-                return self.simulate_move(pawn, current_pos, new_pos)
+                return self.simulate_action(pawn, current_pos, new_pos)
         logger.info("Move is not valid")
         return False
     
-    def simulate_move(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+    def simulate_action(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+        original_target = self.board[new_pos.y][new_pos.x]
         self.set_pawn_at_the_position(pawn, new_pos)
         self.set_empty_position(current_pos)
         if not self.is_check():
             self.set_pawn_at_the_position(pawn, current_pos)
-            self.set_empty_position(new_pos)
+            self.set_pawn_at_the_position(original_target, new_pos)
             return True
         else:
             self.set_pawn_at_the_position(pawn, current_pos)
-            self.set_empty_position(new_pos)
+            self.set_pawn_at_the_position(original_target, new_pos)
         return False
 
     def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point):
@@ -200,13 +203,17 @@ def main():
     board.set_white_pawns()
     board.set_black_pawns()
     while True:
-        print(f"{board.check_whose_turn()} turn")
-        print(board)
-        move = input("Enter move: ")
-        current_pos, new_pos = move.split(" ")
-        current_pos = Point(int(current_pos[0]), int(current_pos[1]))
-        new_pos = Point(int(new_pos[0]), int(new_pos[1]))
-        board.move_piece(current_pos, new_pos)
+        try:
+            print(f"{board.check_whose_turn()} turn")
+            print(board)
+            move = input("Enter move: ")
+            current_pos, new_pos = move.split(" ")
+            current_pos = Point(int(current_pos[0]), int(current_pos[1]))
+            new_pos = Point(int(new_pos[0]), int(new_pos[1]))
+            board.move_piece(current_pos, new_pos)
+        except (ValueError, IndexError):
+            print("You have to provide the correct data")
+
 
 if __name__ == "__main__":
     main()
