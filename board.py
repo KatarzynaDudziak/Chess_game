@@ -30,9 +30,7 @@ class Board:
             ]
         
         self.movements_history: list[tuple[Point, Point]] = []
-        self.captured_pawns: list[Pawn] = []
-        self.available_moves: list[tuple[tuple[Point, Pawn], Point]] = []
-        self.available_captures: list[tuple[tuple[Point, Pawn], Point]] = []        
+        self.captured_pawns: list[Pawn] = [] 
     
     def __str__(self):
         board_str = ""
@@ -54,7 +52,7 @@ class Board:
                     logger.info("Check!")
                     self.switch_turn()
         else:
-            logger.info("Invalid move or pawn type")
+            return True
 
     def execute_move(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         self.add_pawn_to_the_list(pawn, current_pos, new_pos)
@@ -66,13 +64,14 @@ class Board:
         target_pawn = self.get_opponent(pawn, new_pos)
         if target_pawn:
             target_pawn, pos = target_pawn
-            if pawn.can_capture(current_pos, new_pos) and self.simulate_action(pawn, current_pos, new_pos) != False:
-                if self.is_path_clear(current_pos, new_pos):
+            if pawn.can_capture(current_pos, new_pos) and self.is_simulated_action_valid(pawn, current_pos, new_pos):
+                if isinstance(pawn, Knight):
                     return True
+                elif self.is_path_clear(current_pos, new_pos):
+                    return True 
         return False
     
     def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point):
-        print(self.get_opponent(pawn, new_pos))
         target_pawn, target_pawn_pos = self.get_opponent(pawn, new_pos)
         self.captured_pawns.append(target_pawn)
         if self.check_whose_turn() == Color.WHITE:
@@ -95,14 +94,14 @@ class Board:
         if isinstance(pawn, Knight):
             if pawn.can_move(current_pos, new_pos):
                 if isinstance(self.board[new_pos.y][new_pos.x], str):
-                    return self.simulate_action(pawn, current_pos, new_pos)
+                    return self.is_simulated_action_valid(pawn, current_pos, new_pos)
         elif pawn.can_move(current_pos, new_pos) and self.is_path_clear(current_pos, new_pos):
             if isinstance(self.board[new_pos.y][new_pos.x], str):
-                return self.simulate_action(pawn, current_pos, new_pos)
+                return self.is_simulated_action_valid(pawn, current_pos, new_pos)
         logger.info("Move is not valid")
         return False
     
-    def simulate_action(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+    def is_simulated_action_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point):
         original_target = self.board[new_pos.y][new_pos.x]
         self.set_pawn_at_the_position(pawn, new_pos)
         self.set_empty_position(current_pos)
@@ -171,11 +170,34 @@ class Board:
 
     def is_check(self):
         if self.check_whose_turn() == Color.WHITE:
-            return self.can_make_a_check(self.black_pawns)
+            if not self.is_checkmate(self.black_pawns):
+                return self.can_make_a_check(self.black_pawns)
+            else:
+                logger.info("Checkmate!")
+                return True
         if self.check_whose_turn() == Color.BLACK:
-            return self.can_make_a_check(self.white_pawns)
+            if not self.is_checkmate(self.white_pawns):
+                return self.can_make_a_check(self.white_pawns)
+            else:
+                logger.info("Checkmate!")
+                return True
         return False
     
+    def is_checkmate(self, pawns_list: list[tuple]):
+        for pawn_type, position in pawns_list:
+            pawn = self.board[position.y][position.x]
+            for y in range(self.height):
+                for x in range(self.width):
+                    new_pos = Point(x, y)
+                    if isinstance(pawn, Knight):
+                        if (pawn.can_move(position, new_pos) or (pawn.can_capture(position, new_pos))):
+                                if self.is_simulated_action_valid(pawn, position, new_pos):
+                                    return False
+                    elif (pawn.can_move(position, new_pos) or (pawn.can_capture(position, new_pos))):
+                        if self.is_simulated_action_valid(pawn, position, new_pos):
+                            return False
+                    return True
+
     def can_make_a_check(self, pawns_list: list[tuple]):
         for pawn_type, position in pawns_list:
             pawn = self.board[position.y][position.x]
@@ -194,26 +216,30 @@ class Board:
                     return Point(x, y)
         return None
 
-    def is_checkmate(self):
-        pass
-
 
 def main():
     board = Board(8, 8)
     board.set_white_pawns()
     board.set_black_pawns()
+
     while True:
         try:
             print(f"{board.check_whose_turn()} turn")
             print(board)
-            move = input("Enter move: ")
+            move = input("Enter move (e.g., '12 34'): ")
             current_pos, new_pos = move.split(" ")
             current_pos = Point(int(current_pos[0]), int(current_pos[1]))
             new_pos = Point(int(new_pos[0]), int(new_pos[1]))
-            board.move_piece(current_pos, new_pos)
+            if board.move_piece(current_pos, new_pos):
+                if board.is_checkmate(board.white_pawns if board.check_whose_turn() == Color.WHITE else board.black_pawns):
+                    print("Checkmate! Game over.")
+                    print(board)
+                    break
         except (ValueError, IndexError):
-            print("You have to provide the correct data")
-
+            print("Invalid input. Please enter the move in the format '12 34'.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+    
 
 if __name__ == "__main__":
     main()
