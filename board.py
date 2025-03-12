@@ -170,17 +170,9 @@ class Board:
 
     def is_check(self):
         if self.check_whose_turn() == Color.WHITE:
-            if not self.is_checkmate(self.black_pawns):
-                return self.can_make_a_check(self.black_pawns)
-            else:
-                logger.info("Checkmate!")
-                return True
+            return self.can_make_a_check(self.black_pawns)
         if self.check_whose_turn() == Color.BLACK:
-            if not self.is_checkmate(self.white_pawns):
-                return self.can_make_a_check(self.white_pawns)
-            else:
-                logger.info("Checkmate!")
-                return True
+            return self.can_make_a_check(self.white_pawns)
         return False
     
     def is_checkmate(self, pawns_list: list[tuple]):
@@ -221,8 +213,8 @@ def main():
     board = Board(8, 8)
     board.set_white_pawns()
     board.set_black_pawns()
-
-    while True:
+    checkmate = True
+    while checkmate:
         try:
             print(f"{board.check_whose_turn()} turn")
             print(board)
@@ -231,10 +223,9 @@ def main():
             current_pos = Point(int(current_pos[0]), int(current_pos[1]))
             new_pos = Point(int(new_pos[0]), int(new_pos[1]))
             if board.move_piece(current_pos, new_pos):
-                if board.is_checkmate(board.white_pawns if board.check_whose_turn() == Color.WHITE else board.black_pawns):
-                    print("Checkmate! Game over.")
-                    print(board)
-                    break
+                checkmate = board.is_checkmate(board.white_pawns if Color == Color.WHITE else board.black_pawns)
+                logger.info("Checkmate! Game over!")
+                break
         except (ValueError, IndexError):
             print("Invalid input. Please enter the move in the format '12 34'.")
         except Exception as e:
