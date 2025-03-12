@@ -12,7 +12,7 @@ EMPTY_SQUARE = " "
 
 
 class Board:
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int) -> None:
         self.width = width
         self.height = height
         self.board = [[EMPTY_SQUARE for _ in range(width)] for _ in range(height)]
@@ -34,13 +34,13 @@ class Board:
         self.movements_history: list[tuple[Point, Point]] = []
         self.captured_pawns: list[Pawn] = [] 
         
-    def __str__(self):
+    def __str__(self) -> str:
         board_str = ""
         for row in reversed(self.board):
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
         return board_str
 
-    def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point):
+    def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None:
         if pawn.color == Color.WHITE:
             self.white_pawns.remove((type(pawn), current_pos))
             self.white_pawns.append((type(pawn), position))
@@ -48,30 +48,30 @@ class Board:
             self.black_pawns.remove((type(pawn), current_pos))
             self.black_pawns.append((type(pawn), position))
 
-    def execute_move(self, pawn: Pawn, current_pos: Point, new_pos: Point):
+    def execute_move(self, pawn: Pawn, current_pos: Point, new_pos: Point) -> None:
         self.add_pawn_to_the_list(pawn, current_pos, new_pos)
         self.set_pawn_at_the_position(pawn, new_pos)
         self.set_empty_position(current_pos)
         self.movements_history.append((current_pos, new_pos))
     
-    def set_pawn_at_the_position(self, pawn: Pawn, position: Point):
+    def set_pawn_at_the_position(self, pawn: Pawn, position: Point) -> None:
         self.board[position.y][position.x] = pawn
     
-    def set_pawns(self, pawns: List[tuple]):
+    def set_pawns(self, pawns: List[tuple]) -> None:
         for pawn_type, position in pawns:
             pawn = pawn_type()
             self.board[position.y][position.x] = pawn
 
-    def set_white_pawns(self):
+    def set_white_pawns(self) -> None:
         self.set_pawns(self.white_pawns)
 
-    def set_black_pawns(self):
+    def set_black_pawns(self) -> None:
         self.set_pawns(self.black_pawns)
     
-    def set_empty_position(self, position: Point):
+    def set_empty_position(self, position: Point) -> None:
         self.board[position.y][position.x] = EMPTY_SQUARE
     
-    def is_path_clear(self, current_pos: Point, new_pos: Point):  
+    def is_path_clear(self, current_pos: Point, new_pos: Point) -> bool:  
         distance_x = new_pos.x - current_pos.x
         distance_y = new_pos.y - current_pos.y
 
