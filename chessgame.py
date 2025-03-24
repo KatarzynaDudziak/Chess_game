@@ -32,7 +32,8 @@ class ChessGame:
         target_pawn = self.get_opponent(pawn, new_pos)
         if target_pawn:
             pos = target_pawn[1]
-            if pawn.can_capture(current_pos, new_pos) and self.is_simulated_action_valid(pawn, current_pos, new_pos):
+            if pawn.can_capture(current_pos, new_pos) and \
+                self.is_simulated_action_valid(pawn, current_pos, new_pos):
                 if isinstance(pawn, Knight):
                     return True
                 elif self.board.is_path_clear(current_pos, new_pos):

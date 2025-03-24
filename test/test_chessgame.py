@@ -106,3 +106,88 @@ class TestChessGame(unittest.TestCase):
         self.game.capture.assert_not_called()
         self.game.board.execute_move.assert_not_called()
         self.game.switch_turn.assert_not_called()
+
+    def test_capture_should_happen_if_opponent_pawn_is_in_new_pos(self):
+        current_white_piece_pos = Point(1, 1)
+        new_pos = Point(2, 3)
+        pawn = WhitePawn()
+        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
+        pawn.can_capture = MagicMock(return_value=True)
+        self.game.is_simulated_action_valid = MagicMock(return_value=True)
+        self.game.board.is_path_clear = MagicMock(return_value=True)
+
+        self.assertTrue(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
+        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
+        self.game.is_simulated_action_valid.assert_called_once()
+        self.game.board.is_path_clear.assert_called_once()
+
+    def test_capture_should_not_happen_if_opponent_pawn_is_not_in_new_pos(self):
+        current_white_piece_pos = Point(1, 1)
+        new_pos = Point(2, 3)
+        pawn = WhitePawn()
+        self.game.get_opponent = MagicMock(return_value=None)
+        pawn.can_capture = MagicMock(return_value=True)
+        self.game.is_simulated_action_valid = MagicMock(return_value=True)
+        self.game.board.is_path_clear = MagicMock(return_value=True)
+
+        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
+        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
+        self.game.is_simulated_action_valid.assert_not_called()
+        self.game.board.is_path_clear.assert_not_called()
+
+    def test_capture_should_not_happen_if_pawn_cannot_capture(self):
+        current_white_piece_pos = Point(1, 1)
+        new_pos = Point(1, 3)
+        pawn = WhitePawn()
+        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
+        pawn.can_capture = MagicMock(return_value=False)
+        self.game.is_simulated_action_valid = MagicMock(return_value=True)
+        self.game.board.is_path_clear = MagicMock(return_value=True)
+
+        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
+        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
+        self.game.is_simulated_action_valid.assert_not_called()
+        self.game.board.is_path_clear.assert_not_called()
+        
+    def test_capture_should_not_happen_if_simulated_action_is_not_valid(self):
+        current_white_piece_pos = Point(1, 1)
+        new_pos = Point(2, 3)
+        pawn = WhitePawn()
+        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
+        pawn.can_capture = MagicMock(return_value=True)
+        self.game.is_simulated_action_valid = MagicMock(return_value=False)
+        self.game.board.is_path_clear = MagicMock(return_value=True)
+
+        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
+        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
+        self.game.is_simulated_action_valid.assert_called_once()
+        self.game.board.is_path_clear.assert_not_called()
+
+    def test_capture_should_not_happen_if_path_is_not_clear(self):
+        current_white_piece_pos = Point(1, 1)
+        new_pos = Point(2, 3)
+        pawn = WhitePawn()
+        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
+        pawn.can_capture = MagicMock(return_value=True)
+        self.game.is_simulated_action_valid = MagicMock(return_value=True)
+        self.game.board.is_path_clear = MagicMock(return_value=False)
+
+        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
+        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
+        self.game.is_simulated_action_valid.assert_called_once()
+        self.game.board.is_path_clear.assert_called_once()
+
+    def test_capture_should_happen_if_piece_isinstance_knight(self):
+        current_white_piece_pos = Point(1, 1)
+        new_pos = Point(2, 3)
+        pawn = Knight()
+        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
+        pawn.can_capture = MagicMock(return_value=True)
+        self.game.is_simulated_action_valid = MagicMock(return_value=True)
+        self.game.board.is_path_clear = MagicMock(return_value=True)
+
+        self.assertTrue(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
+        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
+        self.game.is_simulated_action_valid.assert_called_once()
+        self.game.board.is_path_clear.assert_not_called()
+
