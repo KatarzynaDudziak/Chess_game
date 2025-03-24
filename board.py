@@ -39,6 +39,9 @@ class Board:
         for row in reversed(self.board):
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
         return board_str
+    
+    def get_piece_at_the_position(self, position: Point) -> Pawn:
+        return self.board[position.y][position.x]
 
     def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None:
         if pawn.color == Color.WHITE:

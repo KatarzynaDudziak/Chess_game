@@ -19,7 +19,6 @@ def main():
                 checkmate = game.is_checkmate(board.white_pawns if Color == Color.WHITE else board.black_pawns)
                 if checkmate:
                     logger.info("Checkmate! Game over!")
-                    print("Checkmate! Game over!")
                     break
         except (ValueError, IndexError):
             print("Invalid input. Please enter the move in the format '12 34'.")

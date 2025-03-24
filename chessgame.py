@@ -10,20 +10,24 @@ class ChessGame:
         self.board = Board(8, 8)
         
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
-            pawn = self.board.board[current_pos.y][current_pos.x]
-            if isinstance(pawn, Pawn):
-                if pawn.color != self.check_whose_turn():
-                    logger.info("It's not your turn!")
-                    return False
-                if self.is_capture_valid(pawn, current_pos, new_pos):
-                    self.capture(pawn, current_pos, new_pos)
-                elif self.is_move_valid(pawn, current_pos, new_pos):
-                    self.board.execute_move(pawn, current_pos, new_pos) 
-                    if self.is_check():
-                        logger.info("Check!")
-                        self.switch_turn()
-            return True
-           
+        pawn = self.board.get_piece_at_the_position(current_pos)
+        if isinstance(pawn, Pawn):
+            if pawn.color != self.check_whose_turn():
+                logger.info("It's not your turn!")
+                return False
+            if self.is_capture_valid(pawn, current_pos, new_pos):
+                logger.info("Capture is valid")
+                self.capture(pawn, current_pos, new_pos)
+            elif self.is_move_valid(pawn, current_pos, new_pos):
+                self.board.execute_move(pawn, current_pos, new_pos)
+                logger.info("Move is valid")
+                if self.is_check():
+                    logger.info("Check!")
+                    self.switch_turn()
+                return True
+            logger.info("Move is not valid")
+        return False
+
     def is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point) -> bool:
         target_pawn = self.get_opponent(pawn, new_pos)
         if target_pawn:
@@ -86,7 +90,6 @@ class ChessGame:
     
     def check_whose_turn(self) -> Color:
         if len(self.board.movements_history) % 2 == 0:
-            print(self.board.movements_history)
             return Color.WHITE
         return Color.BLACK
 
