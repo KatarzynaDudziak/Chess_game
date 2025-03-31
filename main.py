@@ -16,10 +16,13 @@ def main():
             current_pos = Point(int(current_pos[0]), int(current_pos[1]))
             new_pos = Point(int(new_pos[0]), int(new_pos[1]))
             if game.move_piece(current_pos, new_pos):
-                checkmate = game.is_checkmate(board.white_pawns if Color == Color.WHITE else board.black_pawns)
-                if checkmate:
-                    logger.info("Checkmate! Game over!")
-                    break
+                # checkmate = game.is_checkmate(
+                #     board.white_pawns if game.check_whose_turn() == Color.WHITE else board.black_pawns
+                #     )
+                # if checkmate:
+                #     logger.info("Checkmate! Game over!")
+                #     break
+                pass
         except (ValueError, IndexError):
             print("Invalid input. Please enter the move in the format '12 34'.")
         except Exception as e:

@@ -6,7 +6,6 @@ logger.setLevel(logging.INFO)
 
 from point import Point
 from pawns import *
-from chessgame import *
 
 EMPTY_SQUARE = " "
 
@@ -52,6 +51,7 @@ class Board:
             self.black_pawns.append((type(pawn), position))
 
     def execute_move(self, pawn: Pawn, current_pos: Point, new_pos: Point) -> None:
+        logger.info(f"Execute move piece from {current_pos} to {new_pos}")
         self.add_pawn_to_the_list(pawn, current_pos, new_pos)
         self.set_pawn_at_the_position(pawn, new_pos)
         self.set_empty_position(current_pos)
@@ -61,9 +61,8 @@ class Board:
         self.board[position.y][position.x] = pawn
     
     def set_pawns(self, pawns: List[tuple]) -> None:
-        for pawn_type, position in pawns:
-            pawn = pawn_type()
-            self.board[position.y][position.x] = pawn
+        for pawn, position in pawns:
+            self.board[position.y][position.x] = pawn()
 
     def set_white_pawns(self) -> None:
         self.set_pawns(self.white_pawns)
@@ -73,6 +72,9 @@ class Board:
     
     def set_empty_position(self, position: Point) -> None:
         self.board[position.y][position.x] = EMPTY_SQUARE
+
+    def is_out_of_bounds(self, position: Point) -> bool:
+        return not (0 <= position.x < self.width and 0 <= position.y < self.height)
     
     def is_path_clear(self, current_pos: Point, new_pos: Point) -> bool:  
         distance_x = new_pos.x - current_pos.x
