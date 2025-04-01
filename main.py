@@ -16,7 +16,7 @@ def main():
             current_pos = Point(int(current_pos[0]), int(current_pos[1]))
             new_pos = Point(int(new_pos[0]), int(new_pos[1]))
             if game.move_piece(current_pos, new_pos):
-                print("Move successful!")
+                print("Correct move")
         except GameOverException as e:
             print(e)
             checkmate = True

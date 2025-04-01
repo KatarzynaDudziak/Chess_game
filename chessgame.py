@@ -1,8 +1,9 @@
 from board import Board
 from point import Point
 from pawns import *
-from move import MoveHandler
-from check import CheckHandler
+from move_handler import MoveHandler
+from check_handler import CheckHandler
+from capture_handler import CaptureHandler
 from game_over_exception import GameOverException
 
 
@@ -11,9 +12,18 @@ class ChessGame:
         self.board = Board(8, 8)
         self.move_handler = MoveHandler(self.board)
         self.check_handler = CheckHandler(self.board)
+        self.capture_handler = CaptureHandler(self.board)
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
-        return self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.is_check, self.switch_turn)
+        if not self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.is_check, self.switch_turn):
+            if self.capture_handler.is_capture_valid(self.board.get_piece_at_the_position(current_pos),
+                                                        current_pos, new_pos, self.is_check,
+                                                        self.check_whose_turn, self.move_handler.is_simulated_action_valid):
+                self.capture_handler.capture(self.board.get_piece_at_the_position(current_pos),
+                                                current_pos, new_pos, self.check_whose_turn)
+            elif self.is_check(self.check_whose_turn):
+                self.switch_turn()
+        return True   
     
     def check_whose_turn(self) -> Color:
         if len(self.board.movements_history) % 2 == 0:
