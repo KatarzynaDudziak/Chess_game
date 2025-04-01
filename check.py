@@ -3,7 +3,7 @@ from point import Point
 from pawns import *
 
 
-class Check:
+class CheckHandler:
     def __init__(self, board) -> None:
         self.board = board
 

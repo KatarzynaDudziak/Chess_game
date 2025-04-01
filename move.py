@@ -7,7 +7,7 @@ from pawns import *
 from board import EMPTY_SQUARE
 
 
-class Move:
+class MoveHandler:
     def __init__(self, board) -> None:
         self.board = board
 

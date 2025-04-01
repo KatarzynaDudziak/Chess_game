@@ -1,16 +1,16 @@
 from board import Board
 from point import Point
 from pawns import *
-from move import Move
-from check import Check
+from move import MoveHandler
+from check import CheckHandler
 from game_over_exception import GameOverException
 
 
 class ChessGame:
     def __init__(self) -> None:
         self.board = Board(8, 8)
-        self.move_handler = Move(self.board)
-        self.check_handler = Check(self.board)
+        self.move_handler = MoveHandler(self.board)
+        self.check_handler = CheckHandler(self.board)
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
         return self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.is_check, self.switch_turn)
