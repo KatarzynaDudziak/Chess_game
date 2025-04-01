@@ -32,18 +32,6 @@ class MoveHandler:
     
     def is_piece_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         if isinstance(pawn, Knight):
-            return self.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
+            return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
         elif self.board.is_path_clear(current_pos, new_pos):
-            return self.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
-        
-    def is_simulated_action_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
-        original_target = self.board.board[new_pos.y][new_pos.x]
-        self.board.set_pawn_at_the_position(pawn, new_pos)
-        self.board.set_empty_position(current_pos)
-        try:
-            if not is_check(check_whose_turn):
-                return True
-        finally:
-            self.board.set_pawn_at_the_position(original_target, new_pos)
-            self.board.set_pawn_at_the_position(pawn, current_pos)
-        return False
+            return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)

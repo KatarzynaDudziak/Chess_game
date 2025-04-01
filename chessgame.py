@@ -18,7 +18,7 @@ class ChessGame:
         if not self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.is_check, self.switch_turn):
             if self.capture_handler.is_capture_valid(self.board.get_piece_at_the_position(current_pos),
                                                         current_pos, new_pos, self.is_check,
-                                                        self.check_whose_turn, self.move_handler.is_simulated_action_valid):
+                                                        self.check_whose_turn):
                 self.capture_handler.capture(self.board.get_piece_at_the_position(current_pos),
                                                 current_pos, new_pos, self.check_whose_turn)
             elif self.is_check(self.check_whose_turn):
@@ -39,8 +39,8 @@ class ChessGame:
         
     def is_checkmate(self, pawns_list: list[tuple]) -> bool:
         if self.check_whose_turn() == Color.WHITE:
-            return self.check_handler.is_checkmate(self.board.black_pawns, self.move_handler.is_simulated_action_valid, self.check_whose_turn)
-        return self.check_handler.is_checkmate(self.board.white_pawns, self.move_handler.is_simulated_action_valid, self.check_whose_turn)
+            return self.check_handler.is_checkmate(self.board.black_pawns, self.check_whose_turn)
+        return self.check_handler.is_checkmate(self.board.white_pawns, self.check_whose_turn)
         
     def switch_turn(self) -> Color:
         if self.check_whose_turn() == Color.WHITE:

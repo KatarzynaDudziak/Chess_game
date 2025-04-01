@@ -91,3 +91,15 @@ class Board:
             x += step_x
             y += step_y
         return True
+
+    def is_simulated_action_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
+        original_target = self.board[new_pos.y][new_pos.x]
+        self.set_pawn_at_the_position(pawn, new_pos)
+        self.set_empty_position(current_pos)
+        try:
+            if not is_check(check_whose_turn):
+                return True
+        finally:
+            self.set_pawn_at_the_position(original_target, new_pos)
+            self.set_pawn_at_the_position(pawn, current_pos)
+        return False

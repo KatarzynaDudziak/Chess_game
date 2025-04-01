@@ -14,19 +14,19 @@ class CheckHandler:
             return self.can_make_a_check(self.board.white_pawns)
         return False
     
-    def is_checkmate(self, pawns_list: list[tuple], is_simulated_action_valid, check_whose_turn) -> bool:
+    def is_checkmate(self, pawns_list: list[tuple], check_whose_turn) -> bool:
         for _, position in pawns_list:
             pawn = self.board.board[position.y][position.x]
-            if self.can_escape_check(pawn, position, is_simulated_action_valid, check_whose_turn):
+            if self.can_escape_check(pawn, position, check_whose_turn):
                 return False
         return True
 
-    def can_escape_check(self, pawn, position: Point, is_simulated_action_valid, check_whose_turn) -> bool:
+    def can_escape_check(self, pawn, position: Point, check_whose_turn) -> bool:
         for y in range(self.board.height):
             for x in range(self.board.width):
                 new_pos = Point(x, y)
                 if pawn.can_move(position, new_pos) or pawn.can_capture(position, new_pos):
-                    if is_simulated_action_valid(pawn, position, new_pos, self.is_check, check_whose_turn):
+                    if self.board.is_simulated_action_valid(pawn, position, new_pos, self.is_check, check_whose_turn):
                         return True
         return False
 

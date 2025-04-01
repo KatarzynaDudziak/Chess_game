@@ -10,15 +10,15 @@ class CaptureHandler:
     def __init__(self, board) -> None:
         self.board = board
 
-    def is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn, is_simulated_action_valid) -> bool:
+    def is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         target_pawn = self.get_opponent(pawn, new_pos)
         if target_pawn:
             pos = target_pawn[1]
             if pawn.can_capture(current_pos, new_pos):
                 if isinstance(pawn, Knight):
-                    return is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
+                    return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
                 elif self.board.is_path_clear(current_pos, new_pos):
-                    return is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
+                    return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
         return False
         
     def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_whose_turn) -> None:
