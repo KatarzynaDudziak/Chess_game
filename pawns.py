@@ -27,7 +27,8 @@ class Pawn:
         return
 
     def can_move(self, current_pos: Point, new_pos: Point) -> bool:
-        return is_moving_forward_one_square(self.color, current_pos, new_pos) or is_moving_forward_two_squares(self.color, current_pos, new_pos)
+        return is_moving_forward_one_square(self.color, current_pos, new_pos) or \
+                is_moving_forward_two_squares(self.color, current_pos, new_pos)
 
     def can_capture(self, current_pos: Point, new_pos: Point) -> bool:
         return False
@@ -119,7 +120,8 @@ class Knight(Pawn):
         super().__init__()
 
     def can_move(self, current_pos: Point, new_pos: Point) -> bool:
-        return (abs(new_pos.x - current_pos.x) == 2 and abs(new_pos.y - current_pos.y) == 1) or (abs(new_pos.x - current_pos.x) == 1 and abs(new_pos.y - current_pos.y) == 2)
+        return (abs(new_pos.x - current_pos.x) == 2 and abs(new_pos.y - current_pos.y) == 1) or \
+        (abs(new_pos.x - current_pos.x) == 1 and abs(new_pos.y - current_pos.y) == 2)
 
     def can_capture(self, current_pos: Point, new_pos: Point) -> bool:
         return self.can_move(current_pos, new_pos)
@@ -148,7 +150,9 @@ class Queen(Pawn):
         super().__init__()
 
     def can_move(self, current_pos: Point, new_pos: Point) -> bool:
-        return is_moving_diagonally(current_pos, new_pos) or is_moving_forward(self.color, current_pos, new_pos) or is_moving_sideways(current_pos, new_pos)
+        return is_moving_diagonally(current_pos, new_pos) or \
+                is_moving_forward(self.color, current_pos, new_pos) or \
+                is_moving_sideways(current_pos, new_pos)
 
     def can_capture(self, current_pos: Point, new_pos: Point):
         return self.can_move(current_pos, new_pos)
