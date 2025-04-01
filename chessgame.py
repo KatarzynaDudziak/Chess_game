@@ -5,6 +5,7 @@ from point import Point
 from pawns import *
 from move import Move
 from check import Check
+from game_over_exception import GameOverException
 
 
 class ChessGame:
@@ -22,9 +23,12 @@ class ChessGame:
         return Color.BLACK
     
     def is_check(self, check_whose_turn) -> bool:
-        return self.check_handler.is_check(self.check_whose_turn)
-    
-    #Move checking if is checkmate to game and if is checkmate raise na exception in main.py and decdide what to do
+        if not self.check_handler.is_check(self.check_whose_turn):
+            return False
+        if self.is_checkmate(self.board.white_pawns if check_whose_turn() == Color.WHITE else self.board.black_pawns):
+            raise GameOverException("Checkmate! Game over!")
+        return True
+        
     def is_checkmate(self, pawns_list: list[tuple]) -> bool:
         if self.check_whose_turn() == Color.WHITE:
             return self.check_handler.is_checkmate(self.board.black_pawns, self.move_handler.is_simulated_action_valid, self.check_whose_turn)
