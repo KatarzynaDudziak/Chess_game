@@ -15,7 +15,7 @@ class Check:
         return False
     
     def is_checkmate(self, pawns_list: list[tuple], is_simulated_action_valid, check_whose_turn) -> bool:
-        for pawn_type, position in pawns_list:
+        for _, position in pawns_list:
             pawn = self.board.board[position.y][position.x]
             for y in range(self.board.height):
                 for x in range(self.board.width):
@@ -23,15 +23,14 @@ class Check:
                     if isinstance(pawn, Knight):
                         if (pawn.can_move(position, new_pos) or (pawn.can_capture(position, new_pos))):
                             if is_simulated_action_valid(pawn, position, new_pos, self.is_check, check_whose_turn):
-                                return False
+                                return True
                     elif (pawn.can_move(position, new_pos) or (pawn.can_capture(position, new_pos))):
                         if is_simulated_action_valid(pawn, position, new_pos, self.is_check, check_whose_turn):
-                            return False
-        return True
+                            return True
+        return False
 
-#Consider if the mechanism of can make a check is correct
     def can_make_a_check(self, pawns_list: list[tuple]) -> bool:
-        for pawn_type, position in pawns_list:
+        for _, position in pawns_list:
             pawn = self.board.board[position.y][position.x]
             king_pos = self.get_king_position(pawn)
             if king_pos is not None:
@@ -45,7 +44,6 @@ class Check:
     def get_king_position(self, opponent: Pawn) -> Optional[Point]:
         for y, row in enumerate(self.board.board):
             for x, piece in enumerate(row):
-                logger.info(f"Checking piece at ({x}, {y}): {piece} (type: {type(piece)})")
                 if isinstance(piece, King) and piece.color != opponent.color:
                     return Point(x, y)
         return None

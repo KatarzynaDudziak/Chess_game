@@ -1,5 +1,3 @@
-from typing import Optional
-
 from board import Board
 from point import Point
 from pawns import *
