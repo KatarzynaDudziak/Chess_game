@@ -33,5 +33,5 @@ class MoveHandler:
     def is_piece_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         if isinstance(pawn, Knight):
             return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
-        elif self.board.is_path_clear(current_pos, new_pos):
+        elif isinstance(pawn, Pawn) and self.board.is_path_clear(current_pos, new_pos):
             return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
