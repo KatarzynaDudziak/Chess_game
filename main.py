@@ -6,8 +6,7 @@ from chessgame import *
 def main():
     game  = ChessGame()
     board = game.board
-    checkmate = False
-    while not checkmate:
+    while True:
         try:
             print(f"{game.check_whose_turn()} turn")
             print(board)
@@ -19,7 +18,6 @@ def main():
                 print("Correct move")
         except GameOverException as e:
             print(e)
-            checkmate = True
             break
         except (ValueError, IndexError):
             print("Invalid input. Please enter the move in the format '12 34'.")

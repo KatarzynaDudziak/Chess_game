@@ -1,193 +1,116 @@
 import unittest
 from chessgame import ChessGame
-from point import Point
 from pawns import *
 from unittest.mock import MagicMock
 from board import EMPTY_SQUARE
+from game_over_exception import GameOverException
 
 
 class TestChessGame(unittest.TestCase):
     def setUp(self):
         self.game = ChessGame()
         self.game.board = MagicMock()
+        self.game.move_handler = MagicMock()
+        self.game.check_handler = MagicMock()
+        self.game.capture_handler = MagicMock()
 
-    def test_valid_move_should_cause_check(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(1, 2)
-        self.game.board.get_piece_at_the_position = MagicMock(return_value=WhitePawn())
-        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
-        self.game.is_capture_valid = MagicMock(return_value=False)
-        self.game.is_move_valid = MagicMock(return_value=True)
-        self.game.board.execute_move = MagicMock()
-        self.game.is_check = MagicMock(return_value=True)
-        self.game.switch_turn = MagicMock()
-        
-        self.assertTrue(self.game.move_piece(current_white_piece_pos, new_pos))
-        self.game.switch_turn.assert_called_once()
-        
-    def test_valid_move_should_not_cause_check(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(1, 2)
-        self.game.board.get_piece_at_the_position = MagicMock(return_value=WhitePawn())
-        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
-        self.game.is_capture_valid = MagicMock(return_value=False)
-        self.game.is_move_valid = MagicMock(return_value=True)
-        self.game.board.execute_move = MagicMock()
-        self.game.is_check = MagicMock(return_value=False)
-        self.game.switch_turn = MagicMock()
-
-        self.assertTrue(self.game.move_piece(current_white_piece_pos, new_pos))
-        self.game.switch_turn.assert_not_called()
-
-    def test_invalid_move_should_not_result_in_move_and_check(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(3, 3)
-        self.game.board.get_piece_at_the_position = MagicMock(return_value=WhitePawn())
-        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
-        self.game.is_capture_valid = MagicMock(return_value=False)
-        self.game.is_move_valid = MagicMock(return_value=False)
-        self.game.board.execute_move = MagicMock()
+    def test_move_piece_should_return_true_when_the_move_is_valid(self):
+        self.game.move_handler.move_piece = MagicMock(return_value=True)
+        self.game.capture_handler.is_capture_valid = MagicMock()
+        self.game.is_check = MagicMock()
+        self.game.check_whose_turn = MagicMock()
         self.game.is_check = MagicMock()
         self.game.switch_turn = MagicMock()
 
-        self.assertFalse(self.game.move_piece(current_white_piece_pos, new_pos))
-        self.game.board.execute_move.assert_not_called()
+        self.assertTrue(self.game.move_piece((0, 0), (1, 1)))
+
+        self.game.capture_handler.is_capture_valid.assert_not_called()
         self.game.is_check.assert_not_called()
-        self.game.switch_turn.assert_not_called()
+        self.game.move_handler.move_piece.assert_called_once_with((0, 0), (1, 1),
+                                                                   self.game.check_whose_turn,
+                                                                   self.game.is_check,
+                                                                   self.game.switch_turn)
+    
+    def test_capture_should_happen_when_move_is_invalid_and_Capture_is_valid(self):
+        self.game.move_handler.move_piece = MagicMock(return_value=False)
+        self.game.capture_handler.is_capture_valid = MagicMock(return_value=True)
+        self.game.is_check = MagicMock()
 
-    def test_is_capture_valid_should_cause_piece_capture(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(2, 3)
-        self.game.board.get_piece_at_the_position = MagicMock(return_value=WhitePawn())
-        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
-        self.game.is_capture_valid = MagicMock(return_value=True)
-        self.game.capture = MagicMock()
+        self.assertTrue(self.game.move_piece((0, 0), (1, 1)))
 
-        self.assertFalse(self.game.move_piece(current_white_piece_pos, new_pos))
-        self.game.capture.assert_called_once()
-
-    def test_capturing_attempts_the_same_piece_color_should_not_results_in_capture(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(2, 3)
-        self.game.board.get_piece_at_the_position = MagicMock(return_value=WhitePawn())
-        self.game.get_opponent = MagicMock(return_value=(WhitePawn(), new_pos))
-        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
-        self.game.is_capture_valid = MagicMock(return_value=False)
-        self.game.capture = MagicMock()
-
-        self.assertFalse(self.game.move_piece(current_white_piece_pos, new_pos))
-        self.game.capture.assert_not_called()
-
-    def test_piece_cannot_move_if_it_is_not_its_turn(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(1, 2)
-        self.game.board.get_piece_at_the_position = MagicMock(return_value=WhitePawn())
-        self.game.check_whose_turn = MagicMock(return_value=Color.BLACK)
-        self.game.is_capture_valid = MagicMock(return_value=False)
-        self.game.is_move_valid = MagicMock(return_value=True)
-        self.game.board.execute_move = MagicMock()
-        self.game.is_check = MagicMock(return_value=False)
-        self.game.switch_turn = MagicMock()
-
-        self.assertFalse(self.game.move_piece(current_white_piece_pos, new_pos))
-        self.game.board.execute_move.assert_not_called()
-        self.game.switch_turn.assert_not_called()
-
-    def test_piece_cannot_move_if_is_not_instance_pawn(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(1, 2)
-        self.game.board.get_piece_at_the_position = MagicMock(return_value=EMPTY_SQUARE)
-        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
-        self.game.capture = MagicMock()
-        self.game.board.execute_move = MagicMock()
-        self.game.switch_turn = MagicMock()
-
-        self.assertFalse(self.game.move_piece(current_white_piece_pos, new_pos))
-        self.game.capture.assert_not_called()
-        self.game.board.execute_move.assert_not_called()
-        self.game.switch_turn.assert_not_called()
-
-    def test_capture_should_happen_if_opponent_pawn_is_in_new_pos(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(2, 3)
-        pawn = WhitePawn()
-        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
-        pawn.can_capture = MagicMock(return_value=True)
-        self.game.is_simulated_action_valid = MagicMock(return_value=True)
-        self.game.board.is_path_clear = MagicMock(return_value=True)
-
-        self.assertTrue(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
-        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
-        self.game.is_simulated_action_valid.assert_called_once()
-        self.game.board.is_path_clear.assert_called_once()
-
-    def test_capture_should_not_happen_if_opponent_pawn_is_not_in_new_pos(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(2, 3)
-        pawn = WhitePawn()
-        self.game.get_opponent = MagicMock(return_value=None)
-        pawn.can_capture = MagicMock(return_value=True)
-        self.game.is_simulated_action_valid = MagicMock(return_value=True)
-        self.game.board.is_path_clear = MagicMock(return_value=True)
-
-        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
-        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
-        self.game.is_simulated_action_valid.assert_not_called()
-        self.game.board.is_path_clear.assert_not_called()
-
-    def test_capture_should_not_happen_if_pawn_cannot_capture(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(1, 3)
-        pawn = WhitePawn()
-        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
-        pawn.can_capture = MagicMock(return_value=False)
-        self.game.is_simulated_action_valid = MagicMock(return_value=True)
-        self.game.board.is_path_clear = MagicMock(return_value=True)
-
-        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
-        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
-        self.game.is_simulated_action_valid.assert_not_called()
-        self.game.board.is_path_clear.assert_not_called()
+        self.game.is_check.assert_not_called()
+        self.game.capture_handler.is_capture_valid.assert_called_once_with(self.game.board.get_piece_at_the_position((0, 0)),
+                                                                            (0, 0), (1, 1), self.game.is_check,
+                                                                            self.game.check_whose_turn)
         
-    def test_capture_should_not_happen_if_simulated_action_is_not_valid(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(2, 3)
-        pawn = WhitePawn()
-        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
-        pawn.can_capture = MagicMock(return_value=True)
-        self.game.is_simulated_action_valid = MagicMock(return_value=False)
-        self.game.board.is_path_clear = MagicMock(return_value=True)
+    def test_switch_turn_should_be_called_when_move_is_invalid_and_capture_is_invalid(self):
+        self.game.move_handler.move_piece = MagicMock(return_value=False)
+        self.game.capture_handler.is_capture_valid = MagicMock(return_value=False)
+        self.game.capture_handler.capture = MagicMock()
+        self.game.is_check = MagicMock(return_value=True)
+        self.game.switch_turn = MagicMock()
 
-        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
-        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
-        self.game.is_simulated_action_valid.assert_called_once()
-        self.game.board.is_path_clear.assert_not_called()
+        self.assertTrue(self.game.move_piece((0, 0), (1, 1)))
 
-    def test_capture_should_not_happen_if_path_is_not_clear(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(2, 3)
-        pawn = WhitePawn()
-        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
-        pawn.can_capture = MagicMock(return_value=True)
-        self.game.is_simulated_action_valid = MagicMock(return_value=True)
-        self.game.board.is_path_clear = MagicMock(return_value=False)
+        self.game.switch_turn.assert_called_once()
+        self.game.capture_handler.capture.assert_not_called()
 
-        self.assertFalse(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
-        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
-        self.game.is_simulated_action_valid.assert_called_once()
-        self.game.board.is_path_clear.assert_called_once()
+    def test_check_whose_turn_should_return_WHITE_when_the_number_of_movements_is_even(self):
+        self.game.board.movements_history = [(0, 0), (1, 1), (2, 2), (3, 3)]
+        self.assertEqual(self.game.check_whose_turn(), Color.WHITE)
 
-    def test_capture_should_happen_if_piece_isinstance_knight(self):
-        current_white_piece_pos = Point(1, 1)
-        new_pos = Point(2, 3)
-        pawn = Knight()
-        self.game.get_opponent = MagicMock(return_value=(BlackPawn(), new_pos))
-        pawn.can_capture = MagicMock(return_value=True)
-        self.game.is_simulated_action_valid = MagicMock(return_value=True)
-        self.game.board.is_path_clear = MagicMock(return_value=True)
+    def test_check_whose_turn_should_return_BLACK_when_the_number_of_movements_is_odd(self):
+        self.game.board.movements_history = [(0, 0), (1, 1), (2, 2)]
+        self.assertEqual(self.game.check_whose_turn(), Color.BLACK)
 
-        self.assertTrue(self.game.is_capture_valid(pawn, current_white_piece_pos, new_pos))
-        self.game.get_opponent.assert_called_once_with(pawn, new_pos)
-        self.game.is_simulated_action_valid.assert_called_once()
-        self.game.board.is_path_clear.assert_not_called()
+    def test_is_check_should_return_false_when_there_is_no_check(self):
+        self.game.check_handler.is_check = MagicMock(return_value=False)
+        self.game.check_whose_turn = MagicMock()
+        self.game.check_handler.is_checkmate = MagicMock()
 
+        self.assertFalse(self.game.is_check(self.game.check_whose_turn))
+
+        self.game.check_handler.is_check.assert_called_once_with(self.game.check_whose_turn)
+        self.game.check_handler.is_checkmate.assert_not_called()
+
+    def test_is_check_should_raise_GameOverException_when_there_is_checkmate(self):
+        self.game.check_handler.is_check = MagicMock(return_value=True)
+        self.game.check_whose_turn = MagicMock()
+        self.game.check_handler.is_checkmate = MagicMock(return_value=True)
+
+        self.assertRaises(GameOverException, self.game.is_check, self.game.check_whose_turn)
+
+        self.game.check_handler.is_check.assert_called_once_with(self.game.check_whose_turn)
+        self.game.check_handler.is_checkmate.assert_called_once_with(self.game.board.white_pawns,
+                                                                    self.game.check_whose_turn)
+        
+    def test_is_check_should_return_true_when_there_is_check(self):
+        self.game.check_handler.is_check = MagicMock(return_value=True)
+        self.game.check_whose_turn = MagicMock()
+        self.game.check_handler.is_checkmate = MagicMock(return_value=False)
+
+        self.assertTrue(self.game.is_check(self.game.check_whose_turn))
+
+        self.game.check_handler.is_check.assert_called_once_with(self.game.check_whose_turn)
+        self.game.check_handler.is_checkmate.assert_called_once_with(self.game.board.white_pawns,
+                                                                    self.game.check_whose_turn)
+        
+    def test_is_checkmate_should_return_true_when_the_opponent_is_in_checkmate(self):
+        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
+        self.game.check_handler.is_checkmate = MagicMock(return_value=True)
+
+        self.assertTrue(self.game.is_checkmate(self.game.board.black_pawns))
+    
+    def test_is_checkmate_should_return_false_when_the_opponent_is_not_in_checkmate(self):
+        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
+        self.game.check_handler.is_checkmate = MagicMock(return_value=False)
+
+        self.assertFalse(self.game.is_checkmate(self.game.board.black_pawns))
+
+    def test_switch_turn_should_return_BLACK_when_the_current_turn_is_WHITE(self):
+        self.game.check_whose_turn = MagicMock(return_value=Color.WHITE)
+        self.assertEqual(self.game.switch_turn(), Color.BLACK)
+
+    def test_switch_turn_should_return_WHITE_when_the_current_turn_is_BLACK(self):
+        self.game.check_whose_turn = MagicMock(return_value=Color.BLACK)
+        self.assertEqual(self.game.switch_turn(), Color.WHITE)
