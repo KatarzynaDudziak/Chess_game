@@ -39,6 +39,9 @@ class Board:
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
         return board_str
     
+    def get_piece(self, point: Point) -> Pawn:
+        return self.board[point.y][point.x]
+    
     def get_piece_at_the_position(self, position: Point) -> Pawn:
         return self.board[position.y][position.x]
 

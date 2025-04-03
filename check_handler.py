@@ -16,7 +16,7 @@ class CheckHandler:
     
     def is_checkmate(self, pawns_list: list[tuple], check_whose_turn) -> bool:
         for _, position in pawns_list:
-            pawn = self.board.board[position.y][position.x]
+            pawn = self.board.get_piece(position)
             if self.can_escape_check(pawn, position, check_whose_turn):
                 return False
         return True
@@ -32,7 +32,7 @@ class CheckHandler:
 
     def can_make_a_check(self, pawns_list: list[tuple]) -> bool:
         for _, position in pawns_list:
-            pawn = self.board.board[position.y][position.x]
+            pawn = self.get_piece(position)
             king_pos = self.get_king_position(pawn)
             if king_pos and self.can_capture_king(pawn, position, king_pos):
                 return True

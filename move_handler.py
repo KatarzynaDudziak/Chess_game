@@ -25,7 +25,7 @@ class MoveHandler:
         return False
         
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
-        if pawn.can_move(current_pos, new_pos) and self.board.board[new_pos.y][new_pos.x] == EMPTY_SQUARE:
+        if pawn.can_move(current_pos, new_pos) and self.board.get_piece(new_pos) == EMPTY_SQUARE:
             return self.is_piece_move_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
         logger.info("Move is not valid")
         return False
@@ -35,3 +35,4 @@ class MoveHandler:
             return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
         elif isinstance(pawn, Pawn) and self.board.is_path_clear(current_pos, new_pos):
             return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
+        
