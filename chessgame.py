@@ -15,7 +15,7 @@ class ChessGame:
         self.capture_handler = CaptureHandler(self.board)
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
-        if not self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.is_check, self.switch_turn):
+        if not self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.is_check):
             if self.capture_handler.is_capture_valid(self.board.get_piece_at_the_position(current_pos),
                                                         current_pos, new_pos, self.is_check,
                                                         self.check_whose_turn):

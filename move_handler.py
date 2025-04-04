@@ -11,7 +11,7 @@ class MoveHandler:
     def __init__(self, board) -> None:
         self.board = board
 
-    def move_piece(self, current_pos: Point, new_pos: Point, check_whose_turn, is_check, switch_turn) -> bool:
+    def move_piece(self, current_pos: Point, new_pos: Point, check_whose_turn, is_check) -> bool:
         logger.info(f"Moving piece from {current_pos} to {new_pos}")
         pawn = self.board.get_piece_at_the_position(current_pos)
         if isinstance(pawn, Pawn):
