@@ -32,7 +32,7 @@ class CheckHandler:
 
     def can_make_a_check(self, pawns_list: list[tuple]) -> bool:
         for _, position in pawns_list:
-            pawn = self.get_piece(position)
+            pawn = self.board.get_piece(position)
             king_pos = self.get_king_position(pawn)
             if king_pos and self.can_capture_king(pawn, position, king_pos):
                 return True

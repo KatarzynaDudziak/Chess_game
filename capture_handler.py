@@ -34,7 +34,7 @@ class CaptureHandler:
    
     def get_opponent(self, pawn: Pawn, new_pos: Point) -> Optional[tuple[Pawn, Point]]:
         if not self.board.is_out_of_bounds(new_pos):
-            opponent = self.board.board[new_pos.y][new_pos.x]
+            opponent = self.board.get_piece(new_pos)
             if isinstance(opponent, Pawn) and opponent.color != pawn.color:
                 return opponent, new_pos
         return None
