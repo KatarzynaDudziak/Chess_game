@@ -53,6 +53,17 @@ class Board:
             self.black_pawns.remove((type(pawn), current_pos))
             self.black_pawns.append((type(pawn), position))
 
+    def update_board_after_capture(self, pawn: Pawn, target_pawn_pos,
+                                    target_pawn, current_pos, new_pos, check_whose_turn) -> None:
+        if check_whose_turn() == Color.WHITE:
+            self.black_pawns.remove((type(target_pawn), target_pawn_pos))
+        elif check_whose_turn() == Color.BLACK:
+            self.white_pawns.remove((type(target_pawn), target_pawn_pos))
+        self.add_pawn_to_the_list(pawn, current_pos, new_pos)
+        self.set_pawn_at_the_position(pawn, target_pawn_pos)
+        self.movements_history.append((current_pos, target_pawn_pos))
+        self.set_empty_position(current_pos)
+
     def execute_move(self, pawn: Pawn, current_pos: Point, new_pos: Point) -> None:
         logger.info(f"Execute move piece from {current_pos} to {new_pos}")
         self.add_pawn_to_the_list(pawn, current_pos, new_pos)

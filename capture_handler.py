@@ -29,20 +29,9 @@ class CaptureHandler:
         target_pawn, target_pawn_pos = opponent
         self.board.captured_pawns.append(target_pawn)
         logger.info(f"Capture piece at {target_pawn_pos}")
-        self.update_board_after_capture(pawn, target_pawn_pos,
+        self.board.update_board_after_capture(pawn, target_pawn_pos,
                                          target_pawn, current_pos, new_pos, check_whose_turn)
-
-    def update_board_after_capture(self, pawn: Pawn, target_pawn_pos,
-                                    target_pawn, current_pos, new_pos, check_whose_turn) -> None:
-        if check_whose_turn() == Color.WHITE:
-            self.board.black_pawns.remove((type(target_pawn), target_pawn_pos))
-        elif check_whose_turn() == Color.BLACK:
-            self.board.white_pawns.remove((type(target_pawn), target_pawn_pos))
-        self.board.add_pawn_to_the_list(pawn, current_pos, new_pos)
-        self.board.set_pawn_at_the_position(pawn, target_pawn_pos)
-        self.board.movements_history.append((current_pos, target_pawn_pos))
-        self.board.set_empty_position(current_pos)
-
+   
     def get_opponent(self, pawn: Pawn, new_pos: Point) -> Optional[tuple[Pawn, Point]]:
         if not self.board.is_out_of_bounds(new_pos):
             opponent = self.board.board[new_pos.y][new_pos.x]
