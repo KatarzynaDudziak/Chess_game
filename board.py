@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import logging
 logging.basicConfig()
 logger = logging.getLogger()
@@ -39,11 +39,21 @@ class Board:
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
         return board_str
     
+    def get_board(self) -> list[list[Pawn]]:
+        return self.board
+    
     def get_piece(self, point: Point) -> Pawn:
         return self.board[point.y][point.x]
     
     def get_piece_at_the_position(self, position: Point) -> Pawn:
         return self.board[position.y][position.x]
+    
+    def get_king_position(self, opponent: Pawn) -> Optional[Point]:
+        for y, row in enumerate(self.get_board()):
+            for x, piece in enumerate(row):
+                if isinstance(piece, King) and piece.color != opponent.color:
+                    return Point(x, y)
+        return None
 
     def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None:
         if pawn.color == Color.WHITE:

@@ -33,7 +33,7 @@ class CheckHandler:
     def can_make_a_check(self, pawns_list: list[tuple]) -> bool:
         for _, position in pawns_list:
             pawn = self.board.get_piece(position)
-            king_pos = self.get_king_position(pawn)
+            king_pos = self.board.get_king_position(pawn)
             if king_pos and self.can_capture_king(pawn, position, king_pos):
                 return True
         return False
@@ -42,10 +42,3 @@ class CheckHandler:
         if isinstance(pawn, Knight):
             return pawn.can_capture(position, king_pos)
         return pawn.can_capture(position, king_pos) and self.board.is_path_clear(position, king_pos)
-
-    def get_king_position(self, opponent: Pawn) -> Optional[Point]:
-        for y, row in enumerate(self.board.board):
-            for x, piece in enumerate(row):
-                if isinstance(piece, King) and piece.color != opponent.color:
-                    return Point(x, y)
-        return None
