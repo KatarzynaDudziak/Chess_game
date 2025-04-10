@@ -31,7 +31,7 @@ class TestChessGame(unittest.TestCase):
                                                                    self.game.is_check,
                                                                    self.game.switch_turn)
     
-    def test_capture_should_happen_when_move_is_invalid_and_Capture_is_valid(self):
+    def test_capture_should_happen_when_move_is_invalid_and_capture_is_valid(self):
         self.game.move_handler.move_piece = MagicMock(return_value=False)
         self.game.capture_handler.is_capture_valid = MagicMock(return_value=True)
         self.game.is_check = MagicMock()

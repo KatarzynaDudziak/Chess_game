@@ -227,12 +227,7 @@ def is_moving_forward_two_squares(color: Callable[[Enum], Any], current_pos: Poi
 
 
 def is_moving_forward(color: str, current_pos: Point, new_pos: Point) -> bool:
-    if color == Color.WHITE:
-        return new_pos.y > current_pos.y and new_pos.x == current_pos.x
-    elif color == Color.BLACK:
-        return new_pos.y < current_pos.y and new_pos.x == current_pos.x
-    logger.info("Pawn is not moving forward")
-    return False
+    return new_pos.y > current_pos.y and new_pos.x == current_pos.x or new_pos.y < current_pos.y and new_pos.x == current_pos.x
 
 
 def is_moving_sideways(current_pos: Point, new_pos: Point) -> bool:

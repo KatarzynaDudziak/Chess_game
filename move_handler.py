@@ -25,14 +25,30 @@ class MoveHandler:
         return False
         
     def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
-        if pawn.can_move(current_pos, new_pos) and self.board.get_piece(new_pos) == EMPTY_SQUARE:
-            return self.is_piece_move_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
-        logger.info("Move is not valid")
+        if pawn.can_move(current_pos, new_pos):
+            if self.board.get_piece(new_pos) == EMPTY_SQUARE:
+                if self.is_piece_move_valid(pawn, current_pos, new_pos, is_check, check_whose_turn):
+                    return True
+                else:
+                    logger.info(f"Invalid piece move")
+            else:
+                logger.info(f"Target pos is not empty")
+        else:
+            logger.info(f"{pawn} cannot move")
         return False
     
     def is_piece_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         if isinstance(pawn, Knight):
-            return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
+            if self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn):
+                return True
+            else:
+                logger.info(f"Simulated action is not valid for Knight")
+                return False
         elif isinstance(pawn, Pawn) and self.board.is_path_clear(current_pos, new_pos):
-            return self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
+            if self.board.is_simulated_action_valid(pawn, current_pos, new_pos, is_check, check_whose_turn):
+                return True
+            else:
+                logger.info(f"Sumulated action not valid for the rest of pawns and path is clear")
+        else:
+            logger.info(f"Path is not clear")
         

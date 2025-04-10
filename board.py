@@ -55,7 +55,7 @@ class Board:
                     return Point(x, y)
         return None
 
-    def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None:
+    def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None: # check if it works
         if pawn.color == Color.WHITE:
             self.white_pawns.remove((type(pawn), current_pos))
             self.white_pawns.append((type(pawn), position))
@@ -65,6 +65,9 @@ class Board:
 
     def update_board_after_capture(self, pawn: Pawn, target_pawn_pos,
                                     target_pawn, current_pos, new_pos, check_whose_turn) -> None:
+        if isinstance(target_pawn, King):
+            print("Can't capture King!")
+            return
         if check_whose_turn() == Color.WHITE:
             self.black_pawns.remove((type(target_pawn), target_pawn_pos))
         elif check_whose_turn() == Color.BLACK:
@@ -82,6 +85,7 @@ class Board:
         self.movements_history.append((current_pos, new_pos))
     
     def set_pawn_at_the_position(self, pawn: Pawn, position: Point) -> None:
+        logger.info(f"Setting {pawn} at the {position}")
         self.board[position.y][position.x] = pawn
     
     def set_pawns(self, pawns: List[tuple]) -> None:
@@ -115,15 +119,55 @@ class Board:
             x += step_x
             y += step_y
         return True
+    
+    
+    def make_move(self, pawn, new_pos, current_pos):
+        self.set_pawn_at_the_position(pawn, new_pos)
+        self.add_pawn_to_the_list(pawn, current_pos, new_pos)
+        self.set_empty_position(current_pos)
+
+
+    def undo_move(self, pawn, current_pos, new_pos, original_target):
+        self.set_pawn_at_the_position(original_target, new_pos)
+        self.add_pawn_to_the_list(pawn, new_pos, current_pos)
+        self.set_pawn_at_the_position(pawn, current_pos)   
+
 
     def is_simulated_action_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
-        original_target = self.board[new_pos.y][new_pos.x]
-        self.set_pawn_at_the_position(pawn, new_pos)
-        self.set_empty_position(current_pos)
-        try:
-            if not is_check(check_whose_turn):
-                return True
-        finally:
-            self.set_pawn_at_the_position(original_target, new_pos)
-            self.set_pawn_at_the_position(pawn, current_pos)
-        return False
+        attacked_king_color = is_check(check_whose_turn)
+        logger.info(f"Before first move {attacked_king_color}")
+        if attacked_king_color != None:
+            if attacked_king_color == check_whose_turn():
+                original_target = self.board[new_pos.y][new_pos.x]
+                self.make_move(pawn, new_pos, current_pos)
+                attacked_king_color = is_check(check_whose_turn)
+                if not attacked_king_color:
+                    self.undo_move(pawn, current_pos, new_pos, original_target)
+                    logger.info("The move can escape the check")
+                    return True
+                elif attacked_king_color != check_whose_turn():
+                    self.undo_move(pawn, current_pos, new_pos, original_target)
+                    logger.info("The move can escape the check and will cause the check")
+                    return True
+                else:
+                    self.undo_move(pawn, current_pos, new_pos, original_target)
+                    logger.info("The move won't escape the check")
+                    return False
+            logger.info("The move shouldn't happend")
+            return False
+        else:
+            original_target = self.board[new_pos.y][new_pos.x]
+            self.make_move(pawn, new_pos, current_pos)
+            try:
+                attacked_king_color = is_check(check_whose_turn)
+                if attacked_king_color == check_whose_turn():
+                    logger.info(f"Your king {attacked_king_color} is under check")
+                    return False
+                elif attacked_king_color != None:
+                    logger.info(f"{attacked_king_color} is under check. You can attack!")
+                    return True
+                else:
+                    logger.info(f"There is no check after simulated move, who: {pawn}, from: {current_pos}, to: {new_pos}")
+                    return True
+            finally:
+                self.undo_move(pawn, current_pos, new_pos, original_target)   

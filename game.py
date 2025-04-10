@@ -1,4 +1,4 @@
-import pygame
+import pygame  # type: ignore
 
 from chessgame import *
 from pawns import *
@@ -62,7 +62,6 @@ def convert_to_point(x, y):
 
 running = True
 while running:
-    
     screen.blit(bg, (0, 0))
     draw_board()
     draw_pieces()
@@ -71,7 +70,7 @@ while running:
             piece_pos = pygame.mouse.get_pos()
             x, y = piece_pos
             point = convert_to_point(x, y)
-            piece = board.get_piece(point)
+            piece = board.get_piece_at_the_position(point)
             if piece:
                 print(f"The piece {piece.__class__.__name__} and the position {point.x} {point.y}")
         elif event.type == pygame.MOUSEBUTTONUP:
