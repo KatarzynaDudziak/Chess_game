@@ -9,7 +9,7 @@ class CheckHandler:
         self.board = board
 
     def is_check(self, check_whose_turn) -> Optional[Color]:
-        logger.info(f"checkhandler.ischeck() = Current turn {check_whose_turn()}")
+        logger.debug(f"checkhandler.ischeck() = Current turn {check_whose_turn()}")
         if check_whose_turn() == Color.BLACK:
             if self.can_make_a_check(self.board.white_pawns):
                 return Color.BLACK
@@ -36,14 +36,32 @@ class CheckHandler:
             pawn = self.board.get_piece(position)
             if self.can_escape_check(pawn, position, check_whose_turn):
                 return False
-        return False #todo
+        return True
+    
+    def is_action_valid(self, pawn, position, new_pos, check_whose_turn):
+        if self.board.is_simulated_action_valid(pawn, position, new_pos, self.is_check, check_whose_turn):
+            logger.info(f"The {pawn} can move to {new_pos} and can escape check")
+            return True
+        return False
+
+    def can_move_or_capture(self, pawn, position, new_pos, check_whose_turn):
+        if isinstance(pawn, Knight):
+            if pawn.can_move(position, new_pos) or pawn.can_capture(position, new_pos):
+                if self.is_action_valid(pawn, position, new_pos, check_whose_turn):
+                    return True
+        elif pawn.can_move(position, new_pos) and self.board.is_path_clear(position, new_pos) or \
+                              pawn.can_capture(position, new_pos) and self.board.is_path_clear(position, new_pos):
+            if self.is_action_valid(pawn, position, new_pos, check_whose_turn):
+                return True
+        return False
 
     def can_escape_check(self, pawn, position: Point, check_whose_turn) -> bool:
         for y in range(self.board.height):
             for x in range(self.board.width):
                 new_pos = Point(x, y)
-                if pawn.can_move(position, new_pos) or pawn.can_capture(position, new_pos):
-                    if self.board.is_simulated_action_valid(pawn, position, new_pos, self.is_check, check_whose_turn):
+                if new_pos != position:
+                    logger.info(f"Checking move from {position} to {new_pos}")
+                    if self.can_move_or_capture(pawn, position, new_pos, check_whose_turn):
                         return True
         return False
 

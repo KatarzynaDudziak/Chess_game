@@ -120,54 +120,56 @@ class Board:
             y += step_y
         return True
     
-    
     def make_move(self, pawn, new_pos, current_pos):
         self.set_pawn_at_the_position(pawn, new_pos)
         self.add_pawn_to_the_list(pawn, current_pos, new_pos)
         self.set_empty_position(current_pos)
 
-
     def undo_move(self, pawn, current_pos, new_pos, original_target):
         self.set_pawn_at_the_position(original_target, new_pos)
         self.add_pawn_to_the_list(pawn, new_pos, current_pos)
-        self.set_pawn_at_the_position(pawn, current_pos)   
+        self.set_pawn_at_the_position(pawn, current_pos)
 
+    def check_if_the_move_escape_the_check(self, pawn, attacked_king_color, current_pos, new_pos, is_check, check_whose_turn):
+        if attacked_king_color == check_whose_turn():
+            original_target = self.board[new_pos.y][new_pos.x]
+            self.make_move(pawn, new_pos, current_pos)
+            try:
+                attacked_king_color = is_check(check_whose_turn)
+                if not attacked_king_color:
+                    logger.info("The move can escape the check")
+                    return True
+                elif attacked_king_color != check_whose_turn():
+                    logger.info("The move can escape the check and will cause the check")
+                    return True
+                else:
+                    logger.info("The move won't escape the check")
+                    return False
+            finally:
+                self.undo_move(pawn, current_pos, new_pos, original_target)
+        return False
+    
+    def simulate_move_and_check(self, pawn, current_pos, new_pos, is_check, check_whose_turn):
+        original_target = self.board[new_pos.y][new_pos.x]
+        self.make_move(pawn, new_pos, current_pos)
+        try:
+            attacked_king_color = is_check(check_whose_turn)
+            if attacked_king_color == check_whose_turn():
+                logger.info(f"Your king {attacked_king_color} is under check")
+                return False
+            elif attacked_king_color != None:
+                logger.info(f"{attacked_king_color} is under check. You can attack!")
+                return True
+            else:
+                logger.info(f"There is no check after simulated move, who: {pawn}, from: {current_pos}, to: {new_pos}")
+                return True
+        finally:
+            self.undo_move(pawn, current_pos, new_pos, original_target)  
 
     def is_simulated_action_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         attacked_king_color = is_check(check_whose_turn)
         logger.info(f"Before first move {attacked_king_color}")
         if attacked_king_color != None:
-            if attacked_king_color == check_whose_turn():
-                original_target = self.board[new_pos.y][new_pos.x]
-                self.make_move(pawn, new_pos, current_pos)
-                attacked_king_color = is_check(check_whose_turn)
-                if not attacked_king_color:
-                    self.undo_move(pawn, current_pos, new_pos, original_target)
-                    logger.info("The move can escape the check")
-                    return True
-                elif attacked_king_color != check_whose_turn():
-                    self.undo_move(pawn, current_pos, new_pos, original_target)
-                    logger.info("The move can escape the check and will cause the check")
-                    return True
-                else:
-                    self.undo_move(pawn, current_pos, new_pos, original_target)
-                    logger.info("The move won't escape the check")
-                    return False
-            logger.info("The move shouldn't happend")
-            return False
+            return self.check_if_the_move_escape_the_check(pawn, attacked_king_color, current_pos, new_pos, is_check, check_whose_turn) 
         else:
-            original_target = self.board[new_pos.y][new_pos.x]
-            self.make_move(pawn, new_pos, current_pos)
-            try:
-                attacked_king_color = is_check(check_whose_turn)
-                if attacked_king_color == check_whose_turn():
-                    logger.info(f"Your king {attacked_king_color} is under check")
-                    return False
-                elif attacked_king_color != None:
-                    logger.info(f"{attacked_king_color} is under check. You can attack!")
-                    return True
-                else:
-                    logger.info(f"There is no check after simulated move, who: {pawn}, from: {current_pos}, to: {new_pos}")
-                    return True
-            finally:
-                self.undo_move(pawn, current_pos, new_pos, original_target)   
+             return self.simulate_move_and_check(pawn, current_pos, new_pos, is_check, check_whose_turn)
