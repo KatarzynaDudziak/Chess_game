@@ -65,24 +65,27 @@ while running:
     screen.blit(bg, (0, 0))
     draw_board()
     draw_pieces()
-    for event in pygame.event.get():
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            piece_pos = pygame.mouse.get_pos()
-            x, y = piece_pos
-            point = convert_to_point(x, y)
-            piece = board.get_piece_at_the_position(point)
-            if piece:
-                print(f"The piece {piece.__class__.__name__} and the position {point.x} {point.y}")
-        elif event.type == pygame.MOUSEBUTTONUP:
-            move = pygame.mouse.get_pos()
-            x, y = move
-            new_point = convert_to_point(x, y)
-            if chessgame.move_piece(point, new_point):
-                if type(piece) in pieces:
-                    screen.blit(pieces[type(piece)], (28 + new_point.x * 106, 904 - 28 - 106 - new_point.y * 106))
-                else:
-                    print(f"Error: Piece type {type(piece)} not found in pieces dictionary.")
-        if event.type == pygame.QUIT:
-            running = False
-    pygame.display.update()
+    try:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                piece_pos = pygame.mouse.get_pos()
+                x, y = piece_pos
+                point = convert_to_point(x, y)
+                piece = board.get_piece_at_the_position(point)
+                if piece:
+                    print(f"The piece {piece.__class__.__name__} and the position {point.x} {point.y}")
+            elif event.type == pygame.MOUSEBUTTONUP:
+                move = pygame.mouse.get_pos()
+                x, y = move
+                new_point = convert_to_point(x, y)
+                if chessgame.move_piece(point, new_point):
+                    if type(piece) in pieces:
+                        screen.blit(pieces[type(piece)], (28 + new_point.x * 106, 904 - 28 - 106 - new_point.y * 106))
+                    else:
+                        print(f"Error: Piece type {type(piece)} not found in pieces dictionary.")
+            if event.type == pygame.QUIT:
+                running = False
+        pygame.display.update()
+    except GameOverException as ex:
+        print(ex)
 pygame.quit()

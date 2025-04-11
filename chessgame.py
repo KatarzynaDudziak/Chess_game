@@ -6,7 +6,6 @@ logger.info("Information: ")
 logger.debug("That happened: ")
 logger.warning("Watch out: ")
 
-
 from board import Board
 from point import Point
 from pawns import *

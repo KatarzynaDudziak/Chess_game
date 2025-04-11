@@ -130,7 +130,7 @@ class Board:
         self.add_pawn_to_the_list(pawn, new_pos, current_pos)
         self.set_pawn_at_the_position(pawn, current_pos)
 
-    def check_if_the_move_escape_the_check(self, pawn, attacked_king_color, current_pos, new_pos, is_check, check_whose_turn):
+    def will_the_move_escape_the_check(self, pawn, attacked_king_color, current_pos, new_pos, is_check, check_whose_turn):
         if attacked_king_color == check_whose_turn():
             original_target = self.board[new_pos.y][new_pos.x]
             self.make_move(pawn, new_pos, current_pos)
@@ -149,7 +149,7 @@ class Board:
                 self.undo_move(pawn, current_pos, new_pos, original_target)
         return False
     
-    def simulate_move_and_check(self, pawn, current_pos, new_pos, is_check, check_whose_turn):
+    def is_move_valid(self, pawn, current_pos, new_pos, is_check, check_whose_turn):
         original_target = self.board[new_pos.y][new_pos.x]
         self.make_move(pawn, new_pos, current_pos)
         try:
@@ -170,6 +170,6 @@ class Board:
         attacked_king_color = is_check(check_whose_turn)
         logger.info(f"Before first move {attacked_king_color}")
         if attacked_king_color != None:
-            return self.check_if_the_move_escape_the_check(pawn, attacked_king_color, current_pos, new_pos, is_check, check_whose_turn) 
+            return self.will_the_move_escape_the_check(pawn, attacked_king_color, current_pos, new_pos, is_check, check_whose_turn) 
         else:
-             return self.simulate_move_and_check(pawn, current_pos, new_pos, is_check, check_whose_turn)
+             return self.is_move_valid(pawn, current_pos, new_pos, is_check, check_whose_turn)
