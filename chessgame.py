@@ -1,10 +1,10 @@
 from typing import Optional
 import logging, coloredlogs
-coloredlogs.install()
+coloredlogs.install(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.info("Information: ")
-logger.debug("That happened: ")
-logger.warning("Watch out: ")
+logger.debug("Debug: ")
+logger.warning("Warning: ")
 
 from board import Board
 from point import Point
@@ -39,7 +39,6 @@ class ChessGame:
                 logger.debug("move is not valid and there is no check")
         else:
             logger.debug("move_handler.move_piece is valid")
-
         if self.is_checkmate(self.board.white_pawns if self.check_whose_turn() == Color.WHITE else self.board.black_pawns):
             raise GameOverException("Checkmate! Game over!")
         return True   
@@ -56,14 +55,14 @@ class ChessGame:
                 logger.info("The white king is in checkmate!")                
                 return True
             else:
-                logger.info("The white king is not in checkmate, you can go on your turn!")                
+                logger.info("The white king is not in checkmate!")                
                 return False
         elif current_turn == Color.BLACK:
             if self.check_handler.is_checkmate(self.board.black_pawns, self.check_whose_turn):
                 logger.info("The black king is in checkmate!")                
                 return True
             else:
-                logger.info("The black king is not in checkmate, you can go on your turn!")
+                logger.info("The black king is not in checkmate!")
                 return False
             
     def switch_turn(self) -> Color:

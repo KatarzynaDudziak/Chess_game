@@ -1,8 +1,6 @@
 from typing import List, Optional
 import logging
-logging.basicConfig()
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 from point import Point
 from pawns import *
@@ -164,7 +162,7 @@ class Board:
                 logger.info(f"There is no check after simulated move, who: {pawn}, from: {current_pos}, to: {new_pos}")
                 return True
         finally:
-            self.undo_move(pawn, current_pos, new_pos, original_target)  
+            self.undo_move(pawn, current_pos, new_pos, original_target)
 
     def is_simulated_action_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         attacked_king_color = is_check(check_whose_turn)

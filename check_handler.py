@@ -9,25 +9,27 @@ class CheckHandler:
         self.board = board
 
     def is_check(self, check_whose_turn) -> Optional[Color]:
-        logger.debug(f"checkhandler.ischeck() = Current turn {check_whose_turn()}")
-        if check_whose_turn() == Color.BLACK:
-            if self.can_make_a_check(self.board.white_pawns):
+        current_turn = check_whose_turn()
+        logger.debug(f"checkhandler.ischeck() = Current turn {current_turn}")
+        if current_turn == Color.BLACK:
+            if self.can_make_a_check(self.board.white_pawns, Color.WHITE):
                 return Color.BLACK
-            elif self.can_make_a_check(self.board.black_pawns):
+            elif self.can_make_a_check(self.board.black_pawns, Color.BLACK):
                 return Color.WHITE
-        if check_whose_turn() == Color.WHITE:
-            if self.can_make_a_check(self.board.black_pawns):
+        if current_turn == Color.WHITE:
+            if self.can_make_a_check(self.board.black_pawns, Color.BLACK):
                 return Color.WHITE
-            elif self.can_make_a_check(self.board.white_pawns):
+            elif self.can_make_a_check(self.board.white_pawns, Color.WHITE):
                 return Color.BLACK
         return None
     
-    def can_make_a_check(self, pawns_list: list[tuple]) -> bool:
+    def can_make_a_check(self, pawns_list: list[tuple], pawns_color: Color) -> bool:
         for pawn_type, position in pawns_list:
             pawn = self.board.get_piece(position)
-            if isinstance(pawn, Pawn):
+            if isinstance(pawn, Pawn) and pawn.color == pawns_color:
                 king_pos = self.board.get_king_position(pawn)
                 if king_pos and self.can_capture_king(pawn, position, king_pos):
+                    logger.warn(f"Pawn: {pawn} at: {position} is attacking the King at: {king_pos}")
                     return True
         return False
     

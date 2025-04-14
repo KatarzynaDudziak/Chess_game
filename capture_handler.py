@@ -28,7 +28,7 @@ class CaptureHandler:
             return
         target_pawn, target_pawn_pos = opponent
         # self.board.captured_pawns.append(target_pawn)
-        logger.debug(f"Capture piece at {target_pawn_pos}")
+        logger.info(f"{pawn} is capturing piece at {target_pawn_pos}")
         self.board.update_board_after_capture(pawn, target_pawn_pos,
                                          target_pawn, current_pos, new_pos, check_whose_turn)
    
