@@ -13,6 +13,7 @@ from move_handler import MoveHandler
 from check_handler import CheckHandler
 from capture_handler import CaptureHandler
 from game_over_exception import GameOverException
+from check_exception import CheckException
 
 
 class ChessGame:
@@ -31,16 +32,16 @@ class ChessGame:
                 logger.debug("yes, it is capture")
                 self.capture_handler.capture(self.board.get_piece_at_the_position(current_pos),
                                                 current_pos, new_pos, self.check_whose_turn)
-            elif self.check_handler.is_check(self.check_whose_turn):
-                logger.info("Check!")
-                logger.debug("switching turn because there is a check")
-                self.switch_turn()
             else:
                 logger.debug("move is not valid and there is no check")
+        elif self.check_handler.is_check(self.check_whose_turn) != None:
+            if self.is_checkmate(self.board.white_pawns if self.check_whose_turn() == Color.WHITE else self.board.black_pawns):
+                raise GameOverException("Checkmate! Game over!")
+            logger.debug("The king is under check")
+            self.current_turn = self.switch_turn()
+            raise CheckException("Check!")
         else:
             logger.debug("move_handler.move_piece is valid")
-        if self.is_checkmate(self.board.white_pawns if self.check_whose_turn() == Color.WHITE else self.board.black_pawns):
-            raise GameOverException("Checkmate! Game over!")
         return True   
     
     def check_whose_turn(self) -> Color:
