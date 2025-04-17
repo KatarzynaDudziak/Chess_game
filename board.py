@@ -118,17 +118,17 @@ class Board:
             y += step_y
         return True
     
-    def make_move(self, pawn, new_pos, current_pos):
+    def make_move(self, pawn: Pawn, new_pos: Point, current_pos: Point) -> None:
         self.set_pawn_at_the_position(pawn, new_pos)
         self.add_pawn_to_the_list(pawn, current_pos, new_pos)
         self.set_empty_position(current_pos)
 
-    def undo_move(self, pawn, current_pos, new_pos, original_target):
+    def undo_move(self, pawn: Pawn, current_pos: Point, new_pos: Point, original_target: Pawn) -> None:
         self.set_pawn_at_the_position(original_target, new_pos)
         self.add_pawn_to_the_list(pawn, new_pos, current_pos)
         self.set_pawn_at_the_position(pawn, current_pos)
 
-    def will_the_move_escape_the_check(self, pawn, attacked_king_color, current_pos, new_pos, is_check, check_whose_turn):
+    def will_the_move_escape_the_check(self, pawn: Pawn, attacked_king_color: Color, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         if attacked_king_color == check_whose_turn():
             original_target = self.board[new_pos.y][new_pos.x]
             self.make_move(pawn, new_pos, current_pos)
@@ -147,7 +147,7 @@ class Board:
                 self.undo_move(pawn, current_pos, new_pos, original_target)
         return False
     
-    def is_move_valid(self, pawn, current_pos, new_pos, is_check, check_whose_turn):
+    def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, is_check, check_whose_turn) -> bool:
         original_target = self.board[new_pos.y][new_pos.x]
         self.make_move(pawn, new_pos, current_pos)
         try:
