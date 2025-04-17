@@ -1,4 +1,4 @@
-from typing import Optional
+import pygame
 import logging, coloredlogs
 coloredlogs.install(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -12,16 +12,24 @@ from pawns import *
 from move_handler import MoveHandler
 from check_handler import CheckHandler
 from capture_handler import CaptureHandler
+from game_renderer import GameRenderer
 from game_over_exception import GameOverException
 from check_exception import CheckException
+from game_manager import GameManager
+from input_handler import InputHandler
 
 
 class ChessGame:
     def __init__(self) -> None:
         self.board = Board(8, 8)
+        pygame.init()
+        self.font = pygame.font.Font(None, 48)
         self.move_handler = MoveHandler(self.board)
         self.check_handler = CheckHandler(self.board)
         self.capture_handler = CaptureHandler(self.board)
+        self.game_renderer = GameRenderer(self.board, self.font)
+        self.game_manager = GameManager(self.board, self.game_renderer)
+        self.input_handler = InputHandler(self.board, self.game_manager, self.move_piece)
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
         if not self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.check_handler.is_check):
@@ -70,3 +78,25 @@ class ChessGame:
         if self.check_whose_turn() == Color.WHITE:
             return Color.BLACK
         return Color.WHITE
+    
+    def run(self) -> None:
+        running = True
+        while running:
+            self.game_renderer.screen.blit(self.game_renderer.bg, (0, 0))
+            self.game_manager.update_board_and_pieces()
+            try:
+                for event in pygame.event.get():
+                    if not self.input_handler.handle_input(event):
+                        running = False
+                pygame.display.update()
+            except Exception as ex:
+                logger.error(f"An unexpected error occurred: {ex}")
+        pygame.quit()
+
+
+def main():
+    game = ChessGame()
+    game.run()
+    
+if __name__=="__main__":
+    main()
