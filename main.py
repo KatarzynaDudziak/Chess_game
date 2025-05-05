@@ -1,5 +1,4 @@
 from point import Point
-from pawns import Color
 from chessgame import *
 
 

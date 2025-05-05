@@ -53,10 +53,11 @@ class Board:
                     return Point(x, y)
         return None
 
-    def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None: # check if it works
+    def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None: 
         if pawn.color == Color.WHITE:
             self.white_pawns.remove((type(pawn), current_pos))
             self.white_pawns.append((type(pawn), position))
+            print(f"White pawns: {self.white_pawns}")
         elif pawn.color == Color.BLACK:
             self.black_pawns.remove((type(pawn), current_pos))
             self.black_pawns.append((type(pawn), position))
@@ -80,6 +81,7 @@ class Board:
         self.add_pawn_to_the_list(pawn, current_pos, new_pos)
         self.set_pawn_at_the_position(pawn, new_pos)
         self.set_empty_position(current_pos)
+        logger.info(f"Move executed: {pawn} from {current_pos} to {new_pos}")
         self.movements_history.append((current_pos, new_pos))
     
     def set_pawn_at_the_position(self, pawn: Pawn, position: Point) -> None:
@@ -98,6 +100,7 @@ class Board:
     
     def set_empty_position(self, position: Point) -> None:
         self.board[position.y][position.x] = EMPTY_SQUARE
+        logger.info(f"Set empty position at {self.board[position.y][position.x] }")
 
     def is_out_of_bounds(self, position: Point) -> bool:
         return not (0 <= position.x < self.width and 0 <= position.y < self.height)

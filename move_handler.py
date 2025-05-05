@@ -12,8 +12,8 @@ class MoveHandler:
         self.board = board
 
     def move_piece(self, current_pos: Point, new_pos: Point, check_whose_turn, is_check) -> bool:
-        logger.debug(f"Moving piece from {current_pos} to {new_pos}")
         pawn = self.board.get_piece_at_the_position(current_pos)
+        logger.debug(f"Pawn: {pawn} at {current_pos} is moving to {new_pos}")
         if isinstance(pawn, Pawn):
             if pawn.color != check_whose_turn():
                 logger.debug("It's not your turn!")
