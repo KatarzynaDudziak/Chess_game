@@ -2,11 +2,11 @@ import pygame
 import logging
 logger = logging.getLogger(__name__)
 
-from pathlib import Path
-
-from pawns import Pawn, WhitePawn, WhiteRook, WhiteKnight, WhiteBishop, WhiteQueen, WhiteKing, BlackPawn, BlackRook, BlackKnight, BlackBishop, BlackQueen, BlackKing
+from pawns import Pawn, WhitePawn, WhiteRook, WhiteKnight, WhiteBishop, WhiteQueen, \
+      WhiteKing, BlackPawn, BlackRook, BlackKnight, BlackBishop, BlackQueen, BlackKing
 from board import Board
 from point import Point
+
 
 class GameRenderer:
     def  __init__(self, board: Board, font: pygame.font.Font) -> None:
@@ -23,6 +23,8 @@ class GameRenderer:
         self.bg = self.load_and_scale_image("images/board_images/board.png", (self.board_width, self.board_height))
         self.dark_square = self.load_and_scale_image("images/board_images/squareB.png", (self.square_width, self.square_height))
         self.light_square = self.load_and_scale_image("images/board_images/squareW.png", (self.square_width, self.square_height))
+        # self.start_button_rect = pygame.Rect(self.board_width//2 - 100, self.board_height//2, 200, 100)
+        # self.start_button_color = (53, 3, 252)
             
         self.pieces = {
             WhitePawn: self.load_and_scale_image("images/pawnW2.png"),
@@ -39,11 +41,24 @@ class GameRenderer:
             BlackKing: self.load_and_scale_image("images/kingB2.png")
         }
     
-    def load_and_scale_image(self, image_path: Path, size=None) -> pygame.Surface:
+    def load_and_scale_image(self, image_path: str, size=None) -> pygame.Surface:
         if size is None:
             size = self.piece_size
         image = pygame.image.load(image_path)
         return pygame.transform.scale(image, size)
+    
+    def draw_start_screen(self) -> None:
+        self.screen.fill((3, 169, 252))
+
+        title = pygame.font.Font(None, 74).render("Chess Game", True, (255, 255, 255))
+        title_rect = title.get_rect(center=(self.board_width//2, self.board_height//2 - 100))
+        self.screen.blit(title, title_rect)
+        
+        text = self.font.render("Start Game", True, (255, 255, 255))
+        text_rect = text.get_rect(center=(self.board_width//2, self.board_height//2 + 50))
+        self.button_rect = pygame.Rect(text_rect.left - 10, text_rect.top - 10, text_rect.width + 20, text_rect.height + 20)
+        pygame.draw.rect(self.screen, (0, 128, 255), self.button_rect)
+        self.screen.blit(text, text_rect)
 
     def draw_board_and_pieces(self) -> None:
         for row in range(8):
@@ -78,3 +93,11 @@ class GameRenderer:
                                                          self.board_height - self.frame_width - self.square_height - new_point.y * self.square_height))
         else:
             print(f"Error: Piece type {type(piece)} not found in pieces dictionary.")
+
+    def highlight_square(self, point: Point) -> None:
+        highlight = pygame.Rect(self.frame_width + point.x * self.square_width, \
+                                 self.board_height - self.frame_width - self.square_height - point.y * self.square_height, \
+                                 self.square_width, self.square_height)
+        pygame.draw.rect(self.screen, (111, 252, 3), highlight, 5)
+        pygame.time.wait(80)
+                                     

@@ -29,7 +29,7 @@ class ChessGame:
         self.capture_handler = CaptureHandler(self.board)
         self.game_renderer = GameRenderer(self.board, self.font)
         self.game_manager = GameManager(self.board, self.game_renderer)
-        self.input_handler = InputHandler(self.board, self.game_manager, self.move_piece)
+        self.input_handler = InputHandler(self.board, self.game_manager, self.game_renderer, self.move_piece)
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
         if not self.move_handler.move_piece(current_pos, new_pos, self.check_whose_turn, self.check_handler.is_check):
@@ -40,24 +40,29 @@ class ChessGame:
                 logger.debug("yes, it is capture")
                 self.capture_handler.capture(self.board.get_piece_at_the_position(current_pos),
                                                 current_pos, new_pos, self.check_whose_turn)
+                if self.check_handler.is_check(self.check_whose_turn) != None:
+                    self.handle_checkmate_or_check()
             else:
                 logger.debug("move is not valid and there is no check")
         elif self.check_handler.is_check(self.check_whose_turn) != None:
-            if self.is_checkmate(self.board.white_pawns if self.check_whose_turn() == Color.WHITE else self.board.black_pawns):
-                raise GameOverException("Checkmate! Game over!")
-            logger.debug("The king is under check")
-            self.current_turn = self.switch_turn()
-            raise CheckException("Check!")
+            self.handle_checkmate_or_check()
         else:
             logger.debug("move_handler.move_piece is valid")
-        return True   
+        return True
+    
+    def handle_checkmate_or_check(self) -> bool:
+        if self.is_checkmate():
+            raise GameOverException("Checkmate! Game over!")
+        logger.debug("The king is under check")
+        self.current_turn = self.switch_turn()
+        raise CheckException("Check!")
     
     def check_whose_turn(self) -> Color:
         if len(self.board.movements_history) % 2 == 0:
             return Color.WHITE
         return Color.BLACK
     
-    def is_checkmate(self, pawns_list: list[tuple]) -> bool:
+    def is_checkmate(self) -> bool:
         current_turn =  self.check_whose_turn()
         if current_turn == Color.WHITE:
             if self.check_handler.is_checkmate(self.board.white_pawns, self.check_whose_turn):
@@ -81,13 +86,24 @@ class ChessGame:
     
     def run(self) -> None:
         running = True
+        game_started = False
         while running:
-            self.game_renderer.screen.blit(self.game_renderer.bg, (0, 0))
-            self.game_manager.update_board_and_pieces()
+            if not game_started:
+                self.game_renderer.draw_start_screen()
+                pygame.display.update()
+            else:
+                self.game_renderer.screen.fill((0, 0, 0))
+                self.game_renderer.screen.blit(self.game_renderer.bg, (0, 0))
+                self.game_renderer.button_rect = None
+                self.game_manager.update_board_and_pieces()
+                pygame.display.update()
             try:
                 for event in pygame.event.get():
+                    if event.type == InputHandler.START_EVENT:
+                        game_started = True
+                        self.input_handler.set_game_state(game_started)
                     if not self.input_handler.handle_input(event):
-                        running = False
+                            running = False
                 pygame.display.update()
             except Exception as ex:
                 logger.error(f"An unexpected error occurred: {ex}")
@@ -97,6 +113,7 @@ class ChessGame:
 def main():
     game = ChessGame()
     game.run()
+    
     
 if __name__=="__main__":
     main()
