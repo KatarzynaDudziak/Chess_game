@@ -23,8 +23,7 @@ class GameRenderer:
         self.bg = self.load_and_scale_image("images/board_images/board.png", (self.board_width, self.board_height))
         self.dark_square = self.load_and_scale_image("images/board_images/squareB.png", (self.square_width, self.square_height))
         self.light_square = self.load_and_scale_image("images/board_images/squareW.png", (self.square_width, self.square_height))
-        # self.start_button_rect = pygame.Rect(self.board_width//2 - 100, self.board_height//2, 200, 100)
-        # self.start_button_color = (53, 3, 252)
+
             
         self.pieces = {
             WhitePawn: self.load_and_scale_image("images/pawnW2.png"),

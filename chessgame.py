@@ -17,6 +17,7 @@ from game_over_exception import GameOverException
 from check_exception import CheckException
 from game_manager import GameManager
 from input_handler import InputHandler
+from client import ChessClient
 
 
 class ChessGame:
@@ -24,6 +25,7 @@ class ChessGame:
         self.board = Board(8, 8)
         pygame.init()
         self.font = pygame.font.Font(None, 48)
+        self.chess_client = ChessClient()
         self.move_handler = MoveHandler(self.board)
         self.check_handler = CheckHandler(self.board)
         self.capture_handler = CaptureHandler(self.board)
@@ -92,9 +94,9 @@ class ChessGame:
                 self.game_renderer.draw_start_screen()
                 pygame.display.update()
             else:
+                self.game_renderer.button_rect = None
                 self.game_renderer.screen.fill((0, 0, 0))
                 self.game_renderer.screen.blit(self.game_renderer.bg, (0, 0))
-                self.game_renderer.button_rect = None
                 self.game_manager.update_board_and_pieces()
                 pygame.display.update()
             try:
