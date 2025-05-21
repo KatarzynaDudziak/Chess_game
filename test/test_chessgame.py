@@ -64,34 +64,34 @@ class TestChessGame(unittest.TestCase):
         self.assertEqual(self.game.check_whose_turn(), Color.BLACK)
 
     def test_is_check_should_return_false_when_there_is_no_check(self):
-        self.game.check_handler.is_check = MagicMock(return_value=False)
+        self.game.check_handler.get_checked_king_color = MagicMock(return_value=False)
         self.game.check_whose_turn = MagicMock()
         self.game.check_handler.is_checkmate = MagicMock()
 
         self.assertFalse(self.game.is_check(self.game.check_whose_turn))
 
-        self.game.check_handler.is_check.assert_called_once_with(self.game.check_whose_turn)
+        self.game.check_handler.get_checked_king_color.assert_called_once_with(self.game.check_whose_turn)
         self.game.check_handler.is_checkmate.assert_not_called()
 
     def test_is_check_should_raise_GameOverException_when_there_is_checkmate(self):
-        self.game.check_handler.is_check = MagicMock(return_value=True)
+        self.game.check_handler.get_checked_king_color = MagicMock(return_value=True)
         self.game.check_whose_turn = MagicMock()
         self.game.check_handler.is_checkmate = MagicMock(return_value=True)
 
         self.assertRaises(GameOverException, self.game.is_check, self.game.check_whose_turn)
 
-        self.game.check_handler.is_check.assert_called_once_with(self.game.check_whose_turn)
+        self.game.check_handler.get_checked_king_color.assert_called_once_with(self.game.check_whose_turn)
         self.game.check_handler.is_checkmate.assert_called_once_with(self.game.board.white_pawns,
                                                                     self.game.check_whose_turn)
         
     def test_is_check_should_return_true_when_there_is_check(self):
-        self.game.check_handler.is_check = MagicMock(return_value=True)
+        self.game.check_handler.get_checked_king_color = MagicMock(return_value=True)
         self.game.check_whose_turn = MagicMock()
         self.game.check_handler.is_checkmate = MagicMock(return_value=False)
 
         self.assertTrue(self.game.is_check(self.game.check_whose_turn))
 
-        self.game.check_handler.is_check.assert_called_once_with(self.game.check_whose_turn)
+        self.game.check_handler.get_checked_king_color.assert_called_once_with(self.game.check_whose_turn)
         self.game.check_handler.is_checkmate.assert_called_once_with(self.game.board.white_pawns,
                                                                     self.game.check_whose_turn)
         
