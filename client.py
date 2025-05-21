@@ -33,4 +33,9 @@ class ChessClient:
 
 if __name__ == "__main__":
     client = ChessClient()
-    client.run_client()
+    try:
+        client.run_client()
+    except KeyboardInterrupt:
+        print("Client stopped.")
+    finally:
+        client.client_socket.close()

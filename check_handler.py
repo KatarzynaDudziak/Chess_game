@@ -2,14 +2,18 @@ from typing import Optional
 
 from point import Point
 from pawns import *
+import utils
 
+logger = utils.get_logger(__name__)
 
 class CheckHandler:
-    def __init__(self, board) -> None:
+    def __init__(self, board, move_handler, capture_handler) -> None:
         self.board = board
+        self.move_handler = move_handler
+        self.capture_handler = capture_handler
 
-    def is_check(self, check_whose_turn) -> Optional[Color]:
-        current_turn = check_whose_turn()
+    def get_checked_king_color(self, turn) -> Optional[Color]:
+        current_turn = turn
         logger.debug(f"checkhandler.ischeck() = Current turn {current_turn}")
         if current_turn == Color.BLACK:
             if self.can_make_a_check(self.board.white_pawns, Color.WHITE):
@@ -27,43 +31,32 @@ class CheckHandler:
         for pawn_type, position in pawns_list:
             pawn = self.board.get_piece(position)
             if isinstance(pawn, Pawn) and pawn.color == pawns_color:
-                king_pos = self.board.get_king_position(pawn)
+                king_pos = self.board.get_king_position(pawn.color)
                 if king_pos and self.can_capture_king(pawn, position, king_pos):
                     logger.warn(f"Pawn: {pawn} at: {position} is attacking the King at: {king_pos}")
                     return True
         return False
     
-    def is_checkmate(self, pawns_list: list[tuple], check_whose_turn) -> bool:
+    def is_checkmate(self, pawns_list: list[tuple], turn, check_handler) -> bool:
         for _, position in pawns_list:
             pawn = self.board.get_piece(position)
-            if self.can_escape_check(pawn, position, check_whose_turn):
+            if self.can_escape_check(pawn, position, turn, check_handler):
                 return False
         return True
     
-    def is_action_valid(self, pawn, position, new_pos, check_whose_turn):
-        if self.board.is_simulated_action_valid(pawn, position, new_pos, self.is_check, check_whose_turn):
-            logger.info(f"The {pawn} can move to {new_pos} and can escape check")
+    def can_move_or_capture(self, pawn, position, new_pos, turn, check_handler) -> bool:
+        if self.move_handler.is_move_valid(pawn, position, new_pos, check_handler, turn) or \
+        self.capture_handler.is_capture_valid(pawn, position, new_pos, check_handler, turn):
             return True
-        return False
+        return False 
 
-    def can_move_or_capture(self, pawn, position, new_pos, check_whose_turn):
-        if isinstance(pawn, Knight):
-            if pawn.can_move(position, new_pos) or pawn.can_capture(position, new_pos):
-                if self.is_action_valid(pawn, position, new_pos, check_whose_turn):
-                    return True
-        elif pawn.can_move(position, new_pos) and self.board.is_path_clear(position, new_pos) or \
-                              pawn.can_capture(position, new_pos) and self.board.is_path_clear(position, new_pos):
-            if self.is_action_valid(pawn, position, new_pos, check_whose_turn):
-                return True
-        return False
-
-    def can_escape_check(self, pawn, position: Point, check_whose_turn) -> bool:
+    def can_escape_check(self, pawn, position: Point, turn, check_handler) -> bool:
         for y in range(self.board.height):
             for x in range(self.board.width):
                 new_pos = Point(x, y)
                 if new_pos != position:
-                    logger.info(f"Checking move from {position} to {new_pos}")
-                    if self.can_move_or_capture(pawn, position, new_pos, check_whose_turn):
+                    logger.info(f"Checking escape move from {position} to {new_pos}")
+                    if self.can_move_or_capture(pawn, position, new_pos, turn, check_handler):
                         return True
         return False
 

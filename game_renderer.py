@@ -1,12 +1,13 @@
 import pygame
-import logging
-logger = logging.getLogger(__name__)
 
 from pawns import Pawn, WhitePawn, WhiteRook, WhiteKnight, WhiteBishop, WhiteQueen, \
       WhiteKing, BlackPawn, BlackRook, BlackKnight, BlackBishop, BlackQueen, BlackKing
 from board import Board
 from point import Point
+import utils
 
+
+logger = utils.get_logger(__name__)
 
 class GameRenderer:
     def  __init__(self, board: Board, font: pygame.font.Font) -> None:
@@ -19,7 +20,7 @@ class GameRenderer:
         self.piece_size = (104, 104)
         self.frame_width = 28
         self.red_text_color = (255, 0, 0)
-        self.screen = pygame.display.set_mode((self.board_width, self.board_height))
+        self.screen = pygame.display.set_mode((self.board_width, self.board_height), pygame.SCALED)
         self.bg = self.load_and_scale_image("images/board_images/board.png", (self.board_width, self.board_height))
         self.dark_square = self.load_and_scale_image("images/board_images/squareB.png", (self.square_width, self.square_height))
         self.light_square = self.load_and_scale_image("images/board_images/squareW.png", (self.square_width, self.square_height))
