@@ -45,7 +45,9 @@ class MoveHandler:
                 logger.debug(f"Simulated action is not valid for Knight")
                 return False
         elif isinstance(pawn, Pawn) and self.board.is_path_clear(current_pos, new_pos):
+            logger.debug(f"{pawn} has path clear")
             if self.board.is_simulated_action_valid(pawn, current_pos, new_pos, check_handler, turn):
+                logger.debug(f"Simulated action is valid for {pawn}")
                 return True
             else:
                 logger.debug(f"Simulated action not valid for the rest of pawns")
