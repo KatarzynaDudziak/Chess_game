@@ -38,8 +38,7 @@ class CheckHandler:
         return False
     
     def is_checkmate(self, pawns_list: list[tuple], turn, check_handler) -> bool:
-        unique_positions = list(position for _, position in pawns_list)
-        for position in unique_positions:
+        for _, position in pawns_list:
             pawn = self.board.get_piece(position)
             logger.debug(f"{pawn} at the {position} is checking if can escape check")
             if self.can_escape_check(pawn, position, turn, check_handler):

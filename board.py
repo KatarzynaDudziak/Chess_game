@@ -38,6 +38,12 @@ class Board:
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
         return board_str
     
+    def get_white_pawns(self) -> List[tuple]:
+        return self.white_pawns.copy()
+    
+    def get_black_pawns(self) -> List[tuple]:
+        return self.black_pawns.copy()
+    
     def get_board(self) -> list[list[Pawn]]:
         return self.board
     
