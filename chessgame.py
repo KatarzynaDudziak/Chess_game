@@ -65,14 +65,14 @@ class ChessGame:
     def is_checkmate(self, turn, check_handler) -> bool:
         turn = self.check_whose_turn()
         if turn == Color.WHITE:
-            if self.check_handler.is_checkmate(self.board.white_pawns, turn, check_handler):
+            if self.check_handler.is_checkmate(self.board.get_white_pawns(), turn, check_handler):
                 logger.info(f"The white king is in checkmate! current turn: {turn}")                
                 return True
             else:
                 logger.info(f"The white king is not in checkmate! current turn: {turn}")                
                 return False
         elif turn == Color.BLACK:
-            if self.check_handler.is_checkmate(self.board.black_pawns, turn, check_handler):
+            if self.check_handler.is_checkmate(self.board.get_black_pawns(), turn, check_handler):
                 logger.info(f"The black king is in checkmate! current turn: {turn}")                
                 return True
             else:
