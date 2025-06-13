@@ -4,7 +4,7 @@
 <img src="https://github.com/user-attachments/assets/956dde0d-f4cd-4b29-91c8-c7e582b832fc" width="400" height="400"> <img src="https://github.com/user-attachments/assets/85e37080-fc34-490c-ab95-36fec46ffa66" width="400" height="400">
 
 
-## Introduct
+## Introduction
 
 This project is a full-featured chess game implemented in **Python**. It supports a graphical window interface (using **Pygame**) and a console-based interface.
 The modular project separates the game logic, rendering, input handling, and networking. It also includes a **Server-Client** module for remote multiplayer games,
@@ -36,14 +36,14 @@ which is currently under development, and a suite of unit tests to ensure code q
 ## How to Play
 ### 1. Pygame Window Application
 - #### Start the game:
-```console python chessgame.py ```
+``` python chessgame.py ```
 - A window will open with a chessboard.
 - Use your mouse to select and move pieces.
 - The interface displays check and checkmate states.
 - Game state updates in real time.
 ### 2. Console Mode
 - #### Start the game:
-```console python main.py ```
+``` python main.py ```
 - Enter moves using standard chess notation (e.g., 12 24).
 - The board is displayed in the console.
 
@@ -52,9 +52,9 @@ which is currently under development, and a suite of unit tests to ensure code q
 
 ## Getting started
 #### 1. Install dependencies:
-```console python requirements.txt ```
+```pip install -r requirements.txt ```
 #### 2. Run the game:
-```console python chessgame.py ```
+```python chessgame.py ```
 
 ## Contributing
 Contributions are welcome! Please open issues or submit pull requests for improvements, bug fixes, or new features.
