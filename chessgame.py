@@ -16,6 +16,7 @@ from client import ChessClient
 
 logger = utils.get_logger(__name__)
 
+
 class ChessGame:
     def __init__(self) -> None:
         self.board = Board(8, 8)
@@ -30,7 +31,7 @@ class ChessGame:
         self.input_handler = InputHandler(self.board, self.game_manager, self.game_renderer, self.move_piece)
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
-        turn = self.check_whose_turn()
+        turn = self.__check_whose_turn()
         if not self.move_handler.move_piece(current_pos, new_pos, turn, self.check_handler):
             logger.debug("move_handler.move_piece() is not valid, is it capture?")
             piece = self.board.get_piece_at_the_position(current_pos)
@@ -41,29 +42,29 @@ class ChessGame:
                 self.capture_handler.capture(piece,
                                                 current_pos, new_pos, turn)
                 if self.check_handler.get_checked_king_color(turn) != None:
-                    self.handle_checkmate_or_check(turn, self.check_handler)
+                    self.__handle_checkmate_or_check(turn, self.check_handler)
             else:
                 logger.debug("move is not valid and there is no check")
         elif self.check_handler.get_checked_king_color(turn) != None:
-            self.handle_checkmate_or_check(turn, self.check_handler)
+            self.__handle_checkmate_or_check(turn, self.check_handler)
         else:
             logger.debug("move_handler.move_piece is valid")
         return True
     
-    def handle_checkmate_or_check(self, turn, check_handler) -> bool:
-        if self.is_checkmate(turn, check_handler):
+    def __handle_checkmate_or_check(self, turn, check_handler) -> bool:
+        if self.__is_checkmate(turn, check_handler):
             raise GameOverException("Checkmate! Game over!")
         logger.debug("The king is under check")
-        self.current_turn = self.switch_turn()
+        self.current_turn = self.__switch_turn()
         raise CheckException("Check!")
     
-    def check_whose_turn(self) -> Color:
+    def __check_whose_turn(self) -> Color:
         if len(self.board.movements_history) % 2 == 0:
             return Color.WHITE
         return Color.BLACK
     
-    def is_checkmate(self, turn, check_handler) -> bool:
-        turn = self.check_whose_turn()
+    def __is_checkmate(self, turn, check_handler) -> bool:
+        turn = self.__check_whose_turn()
         if turn == Color.WHITE:
             if self.check_handler.is_checkmate(self.board.get_white_pawns(), turn, check_handler):
                 logger.info(f"The white king is in checkmate! current turn: {turn}")                
@@ -79,8 +80,8 @@ class ChessGame:
                 logger.info(f"The black king is not in checkmate! current turn: {turn}")
                 return False
             
-    def switch_turn(self) -> Color:
-        if self.check_whose_turn() == Color.WHITE:
+    def __switch_turn(self) -> Color:
+        if self.__check_whose_turn() == Color.WHITE:
             return Color.BLACK
         return Color.WHITE
     

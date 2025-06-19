@@ -7,7 +7,7 @@ def main():
     board = game.board
     while True:
         try:
-            print(f"{game.check_whose_turn()} turn")
+            print(f"{game.__check_whose_turn()} turn")
             print(board)
             move = input("Enter move (e.g., '12 34'): ")
             current_pos, new_pos = move.split(" ")

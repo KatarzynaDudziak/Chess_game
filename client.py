@@ -1,4 +1,8 @@
 import socket
+import utils
+
+
+logger = utils.get_logger(__name__)
 
 
 class ChessClient:
@@ -9,25 +13,25 @@ class ChessClient:
 
     def connect(self):
         self.client_socket.connect((self.server_ip, self.server_port))
-        print(f"Connected to server at {self.server_ip}:{self.server_port}")
+        logger.info(f"Connected to server at {self.server_ip}:{self.server_port}")
 
-    def send_move(self, move):
+    def send_data(self, move):
         self.client_socket.sendall(move.encode())
-        print(f"Sent move: {move}")
+        logger.info(f"Sent move: {move}")
 
-    def receive_message(self):
+    def recv_data(self):
         response = self.client_socket.recv(1024)
         response = response.decode()
-        print(f"Received message: {response}")
+        logger.info(f"Received message: {response}")
         return response
         
     def run_client(self):
         self.connect()
         while True:
-            response = self.receive_message()
+            response = self.recv_data()
             if not response:
                 break
-            self.send_move(response)
+            self.send_data(response)
         self.client_socket.close()
 
 
@@ -36,6 +40,6 @@ if __name__ == "__main__":
     try:
         client.run_client()
     except KeyboardInterrupt:
-        print("Client stopped.")
+        logger.info("Client stopped.")
     finally:
         client.client_socket.close()

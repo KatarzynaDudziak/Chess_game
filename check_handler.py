@@ -4,7 +4,9 @@ from point import Point
 from pawns import *
 import utils
 
-logger = utils.get_logger(__name__)
+
+logger = utils.get_logger(__name__) 
+
 
 class CheckHandler:
     def __init__(self, board, move_handler, capture_handler) -> None:
@@ -16,14 +18,14 @@ class CheckHandler:
         current_turn = turn
         logger.debug(f"checkhandler.ischeck() = Current turn {current_turn}")
         if current_turn == Color.BLACK:
-            if self.can_make_a_check(self.board.white_pawns, Color.WHITE):
+            if self.can_make_a_check(self.board.get_white_pawns(), Color.WHITE):
                 return Color.BLACK
-            elif self.can_make_a_check(self.board.black_pawns, Color.BLACK):
+            elif self.can_make_a_check(self.board.get_black_pawns(), Color.BLACK):
                 return Color.WHITE
         if current_turn == Color.WHITE:
-            if self.can_make_a_check(self.board.black_pawns, Color.BLACK):
+            if self.can_make_a_check(self.board.get_black_pawns(), Color.BLACK):
                 return Color.WHITE
-            elif self.can_make_a_check(self.board.white_pawns, Color.WHITE):
+            elif self.can_make_a_check(self.board.get_white_pawns(), Color.WHITE):
                 return Color.BLACK
         return None
     
