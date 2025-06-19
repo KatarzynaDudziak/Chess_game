@@ -37,7 +37,7 @@ class InputHandler:
             self.game_renderer.highlight_square(new_point)
             try:
                 if self.move_piece(self.selected_point, new_point):
-                    self.game_renderer.render_moved_piece(self.selected_piece, new_point)
+                    pass
             except GameOverException as ex:
                 self.game_manager.handle_checkmate_exception(ex)
                 return False

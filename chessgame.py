@@ -26,6 +26,7 @@ class ChessGame:
         self.move_handler = MoveHandler(self.board)
         self.capture_handler = CaptureHandler(self.board)
         self.check_handler = CheckHandler(self.board, self.move_handler, self.capture_handler)
+        
         self.game_renderer = GameRenderer(self.board, self.font)
         self.game_manager = GameManager(self.board, self.game_renderer)
         self.input_handler = InputHandler(self.board, self.game_manager, self.game_renderer, self.move_piece)
@@ -99,7 +100,7 @@ class ChessGame:
                         game_started = True
                         self.input_handler.set_game_state(game_started)
                     if not self.input_handler.handle_input(event):
-                            running = False
+                        running = False
                 pygame.display.update()
             except Exception as ex:
                 logger.error(f"An unexpected error occurred: {ex}")

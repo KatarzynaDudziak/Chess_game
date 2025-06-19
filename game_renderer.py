@@ -87,13 +87,6 @@ class GameRenderer:
         pygame.time.wait(1000)
         logger.info(f"CheckException occurred: {ex}")
 
-    def render_moved_piece(self, piece: Pawn, new_point: Point) -> None:
-        if type(piece) in self.pieces:
-            self.screen.blit(self.pieces[type(piece)], (self.frame_width + new_point.x * self.square_width, \
-                                                         self.board_height - self.frame_width - self.square_height - new_point.y * self.square_height))
-        else:
-            print(f"Error: Piece type {type(piece)} not found in pieces dictionary.")
-
     def highlight_square(self, point: Point) -> None:
         highlight = pygame.Rect(self.frame_width + point.x * self.square_width, \
                                  self.board_height - self.frame_width - self.square_height - point.y * self.square_height, \
