@@ -1,9 +1,9 @@
 from point import Point
-from chessgame import *
+from chess_engine import *
 
 
 def main():
-    game  = ChessGame()
+    game  = ChessEngine()
     board = game.board
     while True:
         try:

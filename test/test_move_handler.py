@@ -34,7 +34,7 @@ class TestMoveHandler(unittest.TestCase):
         pawn.color = Color.BLACK
         self.board.get_piece_at_the_position.return_value = pawn
         self.board.execute_move = MagicMock()
-        self.move_handler.__is_move_valid = MagicMock(return_value=False)
+        self.move_handler.is_move_valid = MagicMock(return_value=False)
         self.check_whose_turn = MagicMock(return_value=Color.BLACK)
 
         self.assertFalse(self.move_handler.move_piece(self.current_pos, self.new_pos,
@@ -48,7 +48,7 @@ class TestMoveHandler(unittest.TestCase):
         pawn.color = Color.BLACK
         self.board.get_piece_at_the_position.return_value = pawn
         self.board.execute_move = MagicMock()
-        self.move_handler.__is_move_valid = MagicMock(return_value=True)
+        self.move_handler.is_move_valid = MagicMock(return_value=True)
         self.check_whose_turn = MagicMock(return_value=Color.BLACK)
 
         self.assertTrue(self.move_handler.move_piece(self.current_pos, self.new_pos,
@@ -62,7 +62,7 @@ class TestMoveHandler(unittest.TestCase):
         self.move_handler.__is_piece_move_valid = MagicMock()
         self.check_whose_turn = MagicMock(return_value=Color.BLACK)
 
-        self.assertFalse(self.move_handler.__is_move_valid(pawn, self.current_pos, self.new_pos,
+        self.assertFalse(self.move_handler.is_move_valid(pawn, self.current_pos, self.new_pos,
                                                           self.is_check, self.check_whose_turn))
         self.move_handler.__is_piece_move_valid.assert_not_called()
 
@@ -73,7 +73,7 @@ class TestMoveHandler(unittest.TestCase):
         self.move_handler.__is_piece_move_valid = MagicMock()
         self.check_whose_turn = MagicMock(return_value=Color.BLACK)
 
-        self.assertFalse(self.move_handler.__is_move_valid(pawn, self.current_pos, self.new_pos,
+        self.assertFalse(self.move_handler.is_move_valid(pawn, self.current_pos, self.new_pos,
                                                           self.is_check, self.check_whose_turn))
         self.move_handler.__is_piece_move_valid.assert_not_called()
 
@@ -84,7 +84,7 @@ class TestMoveHandler(unittest.TestCase):
         self.move_handler.__is_piece_move_valid = MagicMock(return_value=True)
         self.check_whose_turn = MagicMock(return_value=Color.BLACK)
 
-        self.assertTrue(self.move_handler.__is_move_valid(pawn, self.current_pos,
+        self.assertTrue(self.move_handler.is_move_valid(pawn, self.current_pos,
                                                          self.new_pos, self.is_check, self.check_whose_turn))
         self.move_handler.__is_piece_move_valid.assert_called_once()
 

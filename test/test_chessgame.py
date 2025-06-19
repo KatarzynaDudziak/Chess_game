@@ -1,5 +1,5 @@
 import unittest
-from chessgame import ChessGame
+from chess_engine import ChessEngine
 from pawns import *
 from unittest.mock import MagicMock
 from board import EMPTY_SQUARE
@@ -8,7 +8,7 @@ from game_over_exception import GameOverException
 
 class TestChessGame(unittest.TestCase):
     def setUp(self):
-        self.game = ChessGame()
+        self.game = ChessEngine()
         self.game.board = MagicMock()
         self.game.move_handler = MagicMock()
         self.game.check_handler = MagicMock()
@@ -16,7 +16,7 @@ class TestChessGame(unittest.TestCase):
 
     def test_move_piece_should_return_true_when_the_move_is_valid(self):
         self.game.move_handler.move_piece = MagicMock(return_value=True)
-        self.game.capture_handler.__is_capture_valid = MagicMock()
+        self.game.capture_handler.is_capture_valid = MagicMock()
         self.game.is_check = MagicMock()
         self.game.__check_whose_turn = MagicMock()
         self.game.is_check = MagicMock()
@@ -24,7 +24,7 @@ class TestChessGame(unittest.TestCase):
 
         self.assertTrue(self.game.move_piece((0, 0), (1, 1)))
 
-        self.game.capture_handler.__is_capture_valid.assert_not_called()
+        self.game.capture_handler.is_capture_valid.assert_not_called()
         self.game.is_check.assert_not_called()
         self.game.move_handler.move_piece.assert_called_once_with((0, 0), (1, 1),
                                                                    self.game.__check_whose_turn,
@@ -33,19 +33,19 @@ class TestChessGame(unittest.TestCase):
     
     def test_capture_should_happen_when_move_is_invalid_and_capture_is_valid(self):
         self.game.move_handler.move_piece = MagicMock(return_value=False)
-        self.game.capture_handler.__is_capture_valid = MagicMock(return_value=True)
+        self.game.capture_handler.is_capture_valid = MagicMock(return_value=True)
         self.game.is_check = MagicMock()
 
         self.assertTrue(self.game.move_piece((0, 0), (1, 1)))
 
         self.game.is_check.assert_not_called()
-        self.game.capture_handler.__is_capture_valid.assert_called_once_with(self.game.board.get_piece_at_the_position((0, 0)),
+        self.game.capture_handler.is_capture_valid.assert_called_once_with(self.game.board.get_piece_at_the_position((0, 0)),
                                                                             (0, 0), (1, 1), self.game.is_check,
                                                                             self.game.__check_whose_turn)
         
     def test_switch_turn_should_be_called_when_move_is_invalid_and_capture_is_invalid(self):
         self.game.move_handler.move_piece = MagicMock(return_value=False)
-        self.game.capture_handler.__is_capture_valid = MagicMock(return_value=False)
+        self.game.capture_handler.is_capture_valid = MagicMock(return_value=False)
         self.game.capture_handler.capture = MagicMock()
         self.game.is_check = MagicMock(return_value=True)
         self.game.__switch_turn = MagicMock()

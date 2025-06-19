@@ -1,7 +1,7 @@
 import socket
 import threading
 
-from chessgame import ChessGame
+from chess_engine import ChessEngine
 import utils
 
   
@@ -17,7 +17,7 @@ class ChessServer:
         self.server_socket.bind((self.server_ip, self.server_port))
         self.server_socket.settimeout(1)
         self.players = {}
-        self.game = ChessGame()
+        self.game = ChessEngine()
 
     def player_handler(self) -> None:
         try:

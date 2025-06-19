@@ -19,7 +19,7 @@ class TestCaptureHandler(unittest.TestCase):
         self.pawn.can_capture= MagicMock()
         self.board.is_simulated_action_valid = MagicMock()
 
-        self.assertFalse(self.capture_handler.__is_capture_valid(self.pawn, self.current_pos,
+        self.assertFalse(self.capture_handler.is_capture_valid(self.pawn, self.current_pos,
                                                                 self.new_pos, self.is_check, self.check_whose_turn))
         
         self.pawn.assert_not_called()
@@ -31,7 +31,7 @@ class TestCaptureHandler(unittest.TestCase):
         self.board.is_path_clear = MagicMock()
         self.board.is_simulated_action_valid = MagicMock()
 
-        self.assertFalse(self.capture_handler.__is_capture_valid(self.pawn, self.current_pos,
+        self.assertFalse(self.capture_handler.is_capture_valid(self.pawn, self.current_pos,
                                                                 self.new_pos, self.is_check, self.check_whose_turn))
 
         self.board.is_path_clear.assert_not_called()
@@ -44,7 +44,7 @@ class TestCaptureHandler(unittest.TestCase):
         self.capture_handler.__get_opponent = MagicMock(return_value=("Pawn", self.new_pos))
         self.board.is_simulated_action_valid = MagicMock(return_value=True)
 
-        self.assertTrue(self.capture_handler.__is_capture_valid(knight, self.current_pos,
+        self.assertTrue(self.capture_handler.is_capture_valid(knight, self.current_pos,
                                                                self.new_pos, self.is_check, self.check_whose_turn))
         
         knight.can_capture.assert_called_once_with(self.current_pos, self.new_pos)
@@ -59,7 +59,7 @@ class TestCaptureHandler(unittest.TestCase):
         self.board.is_path_clear = MagicMock(return_value=True)
         self.board.is_simulated_action_valid = MagicMock(return_value=True)
 
-        self.assertTrue(self.capture_handler.__is_capture_valid(self.pawn, self.current_pos,
+        self.assertTrue(self.capture_handler.is_capture_valid(self.pawn, self.current_pos,
                                                                self.new_pos, self.is_check, self.check_whose_turn))
 
         self.pawn.can_capture.assert_called_once_with(self.current_pos, self.new_pos)

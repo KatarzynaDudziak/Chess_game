@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, Mock, MagicMock, call
 from check_handler import CheckHandler
-from chessgame import Color
+from chess_engine import Color
 from pawns import Pawn, Knight, Color, WhitePawn, BlackPawn, WhiteBishop, BlackBishop, WhiteKnight, BlackKnight, \
     WhiteRook, BlackRook, WhiteQueen, BlackQueen, WhiteKing, BlackKing
 from board import Board

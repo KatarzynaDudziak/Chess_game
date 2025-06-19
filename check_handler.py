@@ -73,7 +73,7 @@ class CheckHandler:
 
     def will_the_move_escape_the_check(self, pawn: Pawn, attacked_king_color: Color, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
         if attacked_king_color == self.get_checked_king_color(turn):
-            original_target = self.board[new_pos.y][new_pos.x]
+            original_target = self.board.get_board()[new_pos.y][new_pos.x]
             self.board.make_move(pawn, new_pos, current_pos)
             try:
                 attacked_king_color = self.get_checked_king_color(turn)

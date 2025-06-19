@@ -1,13 +1,12 @@
 import pygame  # type: ignore
 
 from pawns import *
-from board import Board
 from point import Point
 
+
 class GameManager:
-    def __init__(self, board: Board, game_renderer) -> None:
+    def __init__(self, game_renderer) -> None:
         self.game_renderer = game_renderer
-        self.board = board
    
     def convert_to_point(self, x: int, y: int) -> Point:
         return Point(abs((x - self.game_renderer.frame_width)) // self.game_renderer.square_width, \
