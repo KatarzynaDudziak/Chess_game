@@ -11,7 +11,7 @@ class MoveHandler:
         self.board = board
 
     def move_piece(self, current_pos: Point, new_pos: Point, turn, check_handler) -> bool:
-        pawn = self.board.get_piece_at_the_position(current_pos)
+        pawn = self.board.get_piece(current_pos)
         logger.debug(f"Pawn: {pawn} at {current_pos} is moving to {new_pos}")
         if isinstance(pawn, Pawn):
             if pawn.color != turn:

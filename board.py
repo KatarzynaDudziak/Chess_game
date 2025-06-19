@@ -27,8 +27,8 @@ class Board:
             (BlackPawn, Point(0,6)), (BlackPawn, Point(1,6)), (BlackPawn, Point(2,6)), (BlackPawn, Point(3,6)),
             (BlackPawn, Point(4,6)), (BlackPawn, Point(5,6)), (BlackPawn, Point(6,6)), (BlackPawn, Point(7,6))
             ]
-        self.set_white_pawns()
-        self.set_black_pawns()
+        self.__set_white_pawns()
+        self.__set_black_pawns()
         self.movements_history: list[tuple[Point, Point]] = []
         self.captured_pawns: list[Pawn] = [] 
         
@@ -50,9 +50,6 @@ class Board:
     def get_piece(self, point: Point) -> Pawn:
         return self.board[point.y][point.x]
     
-    def get_piece_at_the_position(self, position: Point) -> Pawn:
-        return self.board[position.y][position.x]
-    
     def get_king_position(self, opponent_color: Color) -> Optional[Point]:
         for y, row in enumerate(self.get_board()):
             for x, piece in enumerate(row):
@@ -60,25 +57,24 @@ class Board:
                     return Point(x, y)
         return None
 
-    def set_pawn_at_the_position(self, pawn: Pawn, position: Point) -> None:
+    def __set_pawn(self, pawn: Pawn, position: Point) -> None:
         logger.info(f"Setting {pawn} at the {position}")
         self.board[position.y][position.x] = pawn
     
-    def set_pawns(self, pawns: List[tuple]) -> None:
+    def __set_pawns(self, pawns: List[tuple]) -> None:
         for pawn, position in pawns:
-            self.board[position.y][position.x] = pawn()
+            self.__set_pawn(pawn(), position)
 
-    def set_white_pawns(self) -> None:
-        self.set_pawns(self.white_pawns)
+    def __set_white_pawns(self) -> None:
+        self.__set_pawns(self.white_pawns)
 
-    def set_black_pawns(self) -> None:
-        self.set_pawns(self.black_pawns)
+    def __set_black_pawns(self) -> None:
+        self.__set_pawns(self.black_pawns)
     
-    def set_empty_position(self, position: Point) -> None:
-        self.board[position.y][position.x] = EMPTY_SQUARE
-        logger.info(f"Set empty position at {self.board[position.y][position.x] }")
+    def __set_empty_position(self, position: Point) -> None:
+        self.__set_pawn(EMPTY_SQUARE, position)
 
-    def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None: 
+    def __add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None: 
         if pawn.color == Color.WHITE:
             self.white_pawns.remove((type(pawn), current_pos))
             self.white_pawns.append((type(pawn), position))
@@ -94,18 +90,14 @@ class Board:
             self.black_pawns.remove((type(target_pawn), target_pawn_pos))
         elif turn == Color.BLACK:
             self.white_pawns.remove((type(target_pawn), target_pawn_pos))
-        self.add_pawn_to_the_list(pawn, current_pos, new_pos)
-        self.set_pawn_at_the_position(pawn, target_pawn_pos)
-        self.movements_history.append((current_pos, target_pawn_pos))
-        self.set_empty_position(current_pos)
+        self.execute_move(pawn, current_pos, new_pos)
 
     def execute_move(self, pawn: Pawn, current_pos: Point, new_pos: Point) -> None:
-        logger.info(f"Execute move piece from {current_pos} to {new_pos}")
-        self.add_pawn_to_the_list(pawn, current_pos, new_pos)
-        self.set_pawn_at_the_position(pawn, new_pos)
-        self.set_empty_position(current_pos)
-        logger.info(f"Move executed: {pawn} from {current_pos} to {new_pos}")
+        self.__add_pawn_to_the_list(pawn, current_pos, new_pos)
+        self.__set_pawn(pawn, new_pos)
+        self.__set_empty_position(current_pos)
         self.movements_history.append((current_pos, new_pos))
+        logger.debug(f"Executed move: {pawn} from {current_pos} to {new_pos}")
     
     def is_out_of_bounds(self, position: Point) -> bool:
         return not (0 <= position.x < self.width and 0 <= position.y < self.height)
@@ -128,36 +120,20 @@ class Board:
         logger.debug(f"Path is clear from {current_pos} to {new_pos}")
         return True
     
+    # Methods related to move simulation
     def make_move(self, pawn: Pawn, new_pos: Point, current_pos: Point) -> None:
-        self.set_pawn_at_the_position(pawn, new_pos)
-        self.add_pawn_to_the_list(pawn, current_pos, new_pos)
-        self.set_empty_position(current_pos)
+        self.__set_pawn(pawn, new_pos)
+        self.__add_pawn_to_the_list(pawn, current_pos, new_pos)
+        self.__set_empty_position(current_pos)
 
+    # Methods related to move simulation
     def undo_move(self, pawn: Pawn, current_pos: Point, new_pos: Point, original_target: Pawn) -> None:
-        self.set_pawn_at_the_position(original_target, new_pos)
-        self.add_pawn_to_the_list(pawn, new_pos, current_pos)
-        self.set_pawn_at_the_position(pawn, current_pos)
-
-    def will_the_move_escape_the_check(self, pawn: Pawn, attacked_king_color: Color, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
-        if attacked_king_color == check_handler.get_checked_king_color(turn):
-            original_target = self.board[new_pos.y][new_pos.x]
-            self.make_move(pawn, new_pos, current_pos)
-            try:
-                attacked_king_color = check_handler.get_checked_king_color(turn)
-                if not attacked_king_color:
-                    logger.info("The move can escape the check")
-                    return True
-                elif attacked_king_color != turn:
-                    logger.info("The move can escape the check and will cause the check")
-                    return True
-                else:
-                    logger.info("The move won't escape the check")
-                    return False
-            finally:
-                self.undo_move(pawn, current_pos, new_pos, original_target)
-        return False
+        self.__set_pawn(original_target, new_pos)
+        self.__add_pawn_to_the_list(pawn, new_pos, current_pos)
+        self.__set_pawn(pawn, current_pos)
     
-    def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
+    # Methods related to move simulation
+    def __is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
         original_target = self.board[new_pos.y][new_pos.x]
         self.make_move(pawn, new_pos, current_pos)
         try:
@@ -174,10 +150,11 @@ class Board:
         finally:
             self.undo_move(pawn, current_pos, new_pos, original_target)
 
+    # Methods related to move simulation
     def is_simulated_action_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
         attacked_king_color = check_handler.get_checked_king_color(turn)
         logger.info(f"Before first move {attacked_king_color}")
         if attacked_king_color != None:
-            return self.will_the_move_escape_the_check(pawn, attacked_king_color, current_pos, new_pos, check_handler, turn) 
+            return check_handler.will_the_move_escape_the_check(pawn, attacked_king_color, current_pos, new_pos, check_handler, turn) 
         else:
-             return self.is_move_valid(pawn, current_pos, new_pos, check_handler, turn)
+             return self.__is_move_valid(pawn, current_pos, new_pos, check_handler, turn)
