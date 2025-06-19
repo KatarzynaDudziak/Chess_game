@@ -12,7 +12,7 @@ class CaptureHandler:
     def __init__(self, board) -> None:
         self.board = board
 
-    def __is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
+    def is_capture_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
         target_pawn = self.__get_opponent(pawn, new_pos)
         if target_pawn:
             if pawn.can_capture(current_pos, new_pos):
@@ -25,7 +25,7 @@ class CaptureHandler:
         return False
         
     def capture(self, pawn: Pawn, current_pos: Point, new_pos: Point, turn, check_handler) -> None:
-        if self.__is_capture_valid(pawn, current_pos, new_pos, check_handler, turn):
+        if self.is_capture_valid(pawn, current_pos, new_pos, check_handler, turn):
             opponent = self.__get_opponent(pawn, new_pos)
             if opponent is None:
                 return

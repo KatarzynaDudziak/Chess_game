@@ -9,11 +9,10 @@ logger = utils.get_logger(__name__)
 class InputHandler:
     START_EVENT = pygame.USEREVENT + 1
 
-    def __init__(self, board, game_manager, game_renderer, move_piece) -> None:
-        self.board = board
+    def __init__(self, engine, game_manager, game_renderer) -> None:
+        self.engine = engine
         self.game_manager = game_manager
         self.game_renderer = game_renderer
-        self.move_piece = move_piece
         self.game_started = False
         self.selected_piece = None
         self.selected_point = None
@@ -28,15 +27,11 @@ class InputHandler:
                 pygame.event.post(pygame.event.Event(InputHandler.START_EVENT))
             else:
                 self.selected_point = self.game_manager.convert_pixel_point_to_board_point()
-                self.selected_piece = self.board.get_piece(self.selected_point)
-                if self.selected_piece:
-                    self.game_renderer.highlight_square(self.selected_point)
-                    print(f"The piece {self.selected_piece} and the position {self.selected_point.x} {self.selected_point.y}")
         elif event.type == pygame.MOUSEBUTTONUP:
             new_point = self.game_manager.convert_pixel_point_to_board_point()
             self.game_renderer.highlight_square(new_point)
             try:
-                if self.move_piece(self.selected_point, new_point):
+                if self.engine.move_piece(self.selected_point, new_point):
                     pass
             except GameOverException as ex:
                 self.game_manager.handle_checkmate_exception(ex)

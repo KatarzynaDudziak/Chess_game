@@ -4,15 +4,15 @@ from pawns import Pawn, WhitePawn, WhiteRook, WhiteKnight, WhiteBishop, WhiteQue
       WhiteKing, BlackPawn, BlackRook, BlackKnight, BlackBishop, BlackQueen, BlackKing
 from board import Board
 from point import Point
+from chess_engine import ChessEngine
 import utils
 
 
 logger = utils.get_logger(__name__)
 
 class GameRenderer:
-    def  __init__(self, board: Board, font: pygame.font.Font) -> None:
-        self.board = board
-        self.font = font
+    def  __init__(self, engine: ChessEngine) -> None:
+        self.engine = engine
         self.board_width = 904
         self.board_height = 904
         self.square_width = 106
@@ -20,6 +20,7 @@ class GameRenderer:
         self.piece_size = (104, 104)
         self.frame_width = 28
         self.red_text_color = (255, 0, 0)
+        self.font = pygame.font.Font(None, 48)
         self.screen = pygame.display.set_mode((self.board_width, self.board_height), pygame.SCALED)
         self.bg = self.load_and_scale_image("images/board_images/board.png", (self.board_width, self.board_height))
         self.dark_square = self.load_and_scale_image("images/board_images/squareB.png", (self.square_width, self.square_height))
@@ -66,9 +67,13 @@ class GameRenderer:
                 square = self.dark_square if (row + column) % 2 == 0 else self.light_square
                 self.screen.blit(square, (self.frame_width + row * self.square_width, \
                                                          self.board_height - self.frame_width - self.square_height - column * self.square_height))
-              
-        for pawn_type, point in self.board.white_pawns + self.board.black_pawns:
-            self.screen.blit(self.pieces[pawn_type], (self.frame_width + point.x * self.square_width, \
+
+        for y in range(8):
+            for x in range(8):
+                pawn_type = self.engine.get_board()[y][x]
+                if isinstance(pawn_type, Pawn):
+                    point = Point(x, y)
+                    self.screen.blit(self.pieces[pawn_type.__class__], (self.frame_width + point.x * self.square_width, \
                                                        self.board_height - self.frame_width - self.square_height - point.y * self.square_height))
 
     def show_checkmate_message(self, ex: Exception) -> None:

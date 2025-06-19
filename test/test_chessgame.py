@@ -1,5 +1,5 @@
 import unittest
-from chessgame import ChessGame
+from chess_engine import ChessEngine
 from pawns import *
 from unittest.mock import MagicMock
 from board import EMPTY_SQUARE
@@ -8,7 +8,7 @@ from game_over_exception import GameOverException
 
 class TestChessGame(unittest.TestCase):
     def setUp(self):
-        self.game = ChessGame()
+        self.game = ChessEngine()
         self.game.board = MagicMock()
         self.game.move_handler = MagicMock()
         self.game.check_handler = MagicMock()

@@ -7,29 +7,21 @@ from pawns import *
 from move_handler import MoveHandler
 from check_handler import CheckHandler
 from capture_handler import CaptureHandler
-from game_renderer import GameRenderer
 from game_over_exception import GameOverException
 from check_exception import CheckException
-from game_manager import GameManager
-from input_handler import InputHandler
-from client import ChessClient
 
 logger = utils.get_logger(__name__)
 
 
-class ChessGame:
+class ChessEngine:
     def __init__(self) -> None:
         self.board = Board(8, 8)
-        pygame.init()
-        self.font = pygame.font.Font(None, 48)
-        self.chess_client = ChessClient()
         self.move_handler = MoveHandler(self.board)
         self.capture_handler = CaptureHandler(self.board)
         self.check_handler = CheckHandler(self.board, self.move_handler, self.capture_handler)
-        
-        self.game_renderer = GameRenderer(self.board, self.font)
-        self.game_manager = GameManager(self.board, self.game_renderer)
-        self.input_handler = InputHandler(self.board, self.game_manager, self.game_renderer, self.move_piece)
+
+    def get_board(self) -> Board:
+        return self.board.get_board()
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
         turn = self.__check_whose_turn()
@@ -81,36 +73,4 @@ class ChessGame:
             return Color.BLACK
         return Color.WHITE
     
-    def run(self) -> None:
-        running = True
-        game_started = False
-        while running:
-            if not game_started:
-                self.game_renderer.draw_start_screen()
-                pygame.display.update()
-            else:
-                self.game_renderer.button_rect = None
-                self.game_renderer.screen.fill((0, 0, 0))
-                self.game_renderer.screen.blit(self.game_renderer.bg, (0, 0))
-                self.game_manager.update_board_and_pieces()
-                pygame.display.update()
-            try:
-                for event in pygame.event.get():
-                    if event.type == InputHandler.START_EVENT:
-                        game_started = True
-                        self.input_handler.set_game_state(game_started)
-                    if not self.input_handler.handle_input(event):
-                        running = False
-                pygame.display.update()
-            except Exception as ex:
-                logger.error(f"An unexpected error occurred: {ex}")
-        pygame.quit()
-
-
-def main():
-    game = ChessGame()
-    game.run()
     
-    
-if __name__=="__main__":
-    main()
