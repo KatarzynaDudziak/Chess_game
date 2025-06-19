@@ -60,6 +60,24 @@ class Board:
                     return Point(x, y)
         return None
 
+    def set_pawn_at_the_position(self, pawn: Pawn, position: Point) -> None:
+        logger.info(f"Setting {pawn} at the {position}")
+        self.board[position.y][position.x] = pawn
+    
+    def set_pawns(self, pawns: List[tuple]) -> None:
+        for pawn, position in pawns:
+            self.board[position.y][position.x] = pawn()
+
+    def set_white_pawns(self) -> None:
+        self.set_pawns(self.white_pawns)
+
+    def set_black_pawns(self) -> None:
+        self.set_pawns(self.black_pawns)
+    
+    def set_empty_position(self, position: Point) -> None:
+        self.board[position.y][position.x] = EMPTY_SQUARE
+        logger.info(f"Set empty position at {self.board[position.y][position.x] }")
+
     def add_pawn_to_the_list(self, pawn: Pawn, current_pos: Point, position: Point) -> None: 
         if pawn.color == Color.WHITE:
             self.white_pawns.remove((type(pawn), current_pos))
@@ -89,24 +107,6 @@ class Board:
         logger.info(f"Move executed: {pawn} from {current_pos} to {new_pos}")
         self.movements_history.append((current_pos, new_pos))
     
-    def set_pawn_at_the_position(self, pawn: Pawn, position: Point) -> None:
-        logger.info(f"Setting {pawn} at the {position}")
-        self.board[position.y][position.x] = pawn
-    
-    def set_pawns(self, pawns: List[tuple]) -> None:
-        for pawn, position in pawns:
-            self.board[position.y][position.x] = pawn()
-
-    def set_white_pawns(self) -> None:
-        self.set_pawns(self.white_pawns)
-
-    def set_black_pawns(self) -> None:
-        self.set_pawns(self.black_pawns)
-    
-    def set_empty_position(self, position: Point) -> None:
-        self.board[position.y][position.x] = EMPTY_SQUARE
-        logger.info(f"Set empty position at {self.board[position.y][position.x] }")
-
     def is_out_of_bounds(self, position: Point) -> bool:
         return not (0 <= position.x < self.width and 0 <= position.y < self.height)
     

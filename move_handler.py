@@ -1,4 +1,3 @@
-
 from point import Point
 from pawns import *
 from board import EMPTY_SQUARE
@@ -18,16 +17,16 @@ class MoveHandler:
             if pawn.color != turn:
                 logger.debug("It's not your turn!")
                 return False
-            elif self.is_move_valid(pawn, current_pos, new_pos, check_handler, turn):
+            elif self.__is_move_valid(pawn, current_pos, new_pos, check_handler, turn):
                 self.board.execute_move(pawn, current_pos, new_pos)
                 logger.debug("Move is valid")
                 return True
         return False
         
-    def is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
+    def __is_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
         if pawn.can_move(current_pos, new_pos):
             if self.board.get_piece(new_pos) == EMPTY_SQUARE:
-                if self.is_piece_move_valid(pawn, current_pos, new_pos, check_handler, turn):
+                if self.__is_piece_move_valid(pawn, current_pos, new_pos, check_handler, turn):
                     return True
                 else:
                     logger.debug(f"Invalid piece move")
@@ -37,7 +36,7 @@ class MoveHandler:
             logger.debug(f"{pawn} cannot move")
         return False
     
-    def is_piece_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
+    def __is_piece_move_valid(self, pawn: Pawn, current_pos: Point, new_pos: Point, check_handler, turn) -> bool:
         if isinstance(pawn, Knight):
             if self.board.is_simulated_action_valid(pawn, current_pos, new_pos, check_handler, turn):
                 return True
