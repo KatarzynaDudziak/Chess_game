@@ -34,13 +34,8 @@ class ChessGame:
         turn = self.__check_whose_turn()
         if not self.move_handler.move_piece(current_pos, new_pos, turn, self.check_handler):
             logger.debug("move_handler.move_piece() is not valid, is it capture?")
-            piece = self.board.get_piece_at_the_position(current_pos)
-            if self.capture_handler.is_capture_valid(piece,
-                                                        current_pos, new_pos, self.check_handler,
-                                                        turn):
-                logger.debug("yes, it is capture")
-                self.capture_handler.capture(piece,
-                                                current_pos, new_pos, turn)
+            piece = self.board.get_piece(current_pos)
+            if self.capture_handler.capture(piece, current_pos, new_pos, turn, self.check_handler):
                 if self.check_handler.get_checked_king_color(turn) != None:
                     self.__handle_checkmate_or_check(turn, self.check_handler)
             else:
