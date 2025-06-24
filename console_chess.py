@@ -12,7 +12,7 @@ class ConsoleChess:
         self.engine = ChessEngine()
         self.board = self.engine.get_board()
 
-    def draw_board(self) -> str:
+    def __draw_board(self) -> str:
         board_str = ""
         for row in reversed(self.board):
             board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
@@ -22,7 +22,7 @@ class ConsoleChess:
         while True:
             try:
                 print(f"{self.engine.check_whose_turn()} turn")
-                print(self.draw_board())
+                print(self.__draw_board())
                 move = input("Enter move (e.g., '12 34'): ")
                 current_pos, new_pos = move.split(" ")
                 current_pos = Point(int(current_pos[0]), int(current_pos[1]))
