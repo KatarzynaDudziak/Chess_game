@@ -31,12 +31,6 @@ class Board:
         self.__set_black_pawns()
         self.movements_history: list[tuple[Point, Point]] = []
         self.captured_pawns: list[Pawn] = [] 
-        
-    def __str__(self) -> str:
-        board_str = ""
-        for row in reversed(self.board):
-            board_str += "".join([f"|{pawn.__str__()}|" if isinstance(pawn, Pawn) else "|__ |" for pawn in row]) + "\n"
-        return board_str
     
     def get_white_pawns(self) -> List[tuple]:
         return self.white_pawns.copy()

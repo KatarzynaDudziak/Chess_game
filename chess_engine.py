@@ -24,7 +24,7 @@ class ChessEngine:
         return self.board.get_board()
 
     def move_piece(self, current_pos: Point, new_pos: Point) -> bool:
-        turn = self.__check_whose_turn()
+        turn = self.check_whose_turn()
         if not self.move_handler.move_piece(current_pos, new_pos, turn, self.check_handler):
             logger.debug("move_handler.move_piece() is not valid, is it capture?")
             piece = self.board.get_piece(current_pos)
@@ -46,13 +46,13 @@ class ChessEngine:
         self.current_turn = self.__switch_turn()
         raise CheckException("Check!")
     
-    def __check_whose_turn(self) -> Color:
+    def check_whose_turn(self) -> Color:
         if len(self.board.movements_history) % 2 == 0:
             return Color.WHITE
         return Color.BLACK
     
     def __is_checkmate(self, turn, check_handler) -> bool:
-        turn = self.__check_whose_turn()
+        turn = self.check_whose_turn()
         if turn == Color.WHITE:
             if self.check_handler.is_checkmate(self.board.get_white_pawns(), turn, check_handler):
                 logger.info(f"The white king is in checkmate! current turn: {turn}")                
@@ -69,8 +69,6 @@ class ChessEngine:
                 return False
             
     def __switch_turn(self) -> Color:
-        if self.__check_whose_turn() == Color.WHITE:
+        if self.check_whose_turn() == Color.WHITE:
             return Color.BLACK
         return Color.WHITE
-    
-    
