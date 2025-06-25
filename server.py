@@ -1,23 +1,34 @@
 import socket
 import threading
+import pickle
 
 from chess_engine import ChessEngine
+from pawns import Pawn
 import utils
 
   
 logger = utils.get_logger(__name__)
 
+class MessageType:
+    MOVE = "move"
+    BOARD = "board"
+    GAME_OVER = "game_over"
+    CHECK = "check"
+    CHECKMATE = "checkmate"
+    INVALID_MOVE = "invalid_move"
+    PLAYER_JOINED = "player_joined"
+    PLAYER_LEFT = "player_left"
+
 
 class ChessServer:
     def __init__(self) -> None:
+        self.game = ChessEngine()
         self.server_ip = 'localhost'
         self.server_port = 12345
-        self.board = None  # Placeholder for the chess board
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.server_ip, self.server_port))
         self.server_socket.settimeout(1)
         self.players = {}
-        self.game = ChessEngine()
 
     def player_handler(self) -> None:
         try:
@@ -25,13 +36,12 @@ class ChessServer:
             logger.info(f"Connection from {addr} has been established.")
             if "player1" not in self.players:
                 self.players["player1"] = client_socket
-                logger.info("Player 1 connected.")
-                self.send_data(client_socket, "You are Player 1. Waiting for Player 2...")
+                board_state = self.game.get_board()
+                self.send_data(client_socket, pickle.dumps({"type": MessageType.BOARD, "data": board_state}))
             elif "player2" not in self.players:
                 self.players["player2"] = client_socket
-                logger.info("Player 2 connected.")
-                self.send_data(client_socket, "You are Player 2. Game starting...")
                 self.send_data(self.players["player1"], "Player 2 has joined. Game starting...")
+                self.send_data(client_socket, pickle.dumps({"type": MessageType.BOARD, "data": board_state}))
         except Exception as e:
             logger.info(f"An error occurred: {e}")
 
@@ -70,9 +80,9 @@ class ChessServer:
             return None
         except Exception as e:
             return None
-    
-    def send_data(self, client_socket, data: str) -> None:
-        client_socket.sendall(data.encode())
+
+    def send_data(self, client_socket, data: bytes) -> None:
+        client_socket.sendall(data)
         logger.info(f"Sent move: {data}")
 
     def handle_move(self, player_id: str) -> None:
@@ -96,10 +106,15 @@ class ChessServer:
         logger.info(f"{player_id} thread terminated.")
 
 
-if __name__ == "__main__":
+def main():
     server = ChessServer()
     try:
         server.run_server()
     except KeyboardInterrupt:
         server.stop_event.set()
         server.server_socket.close()
+        logger.info("Server stopped.")
+
+
+if __name__ == "__main__":
+    main()

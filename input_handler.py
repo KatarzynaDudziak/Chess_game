@@ -8,6 +8,8 @@ logger = utils.get_logger(__name__)
 
 class InputHandler:
     START_EVENT = pygame.USEREVENT + 1
+    SOLO_GAME_EVENT = pygame.USEREVENT + 1
+    ONLINE_GAME_EVENT = pygame.USEREVENT + 2
 
     def __init__(self, engine, game_manager, game_renderer) -> None:
         self.engine = engine
@@ -23,8 +25,10 @@ class InputHandler:
     def handle_input(self, event: pygame.event.Event) -> bool:
         if event.type == pygame.MOUSEBUTTONDOWN:
             logger.debug(f"Mouse button down at {self.game_started}")
-            if not self.game_started and self.game_renderer.button_rect.collidepoint(event.pos):
+            if not self.game_started and self.game_renderer.solo_rect.collidepoint(event.pos):
                 pygame.event.post(pygame.event.Event(InputHandler.START_EVENT))
+            elif not self.game_started and self.game_renderer.online_rect.collidepoint(event.pos):
+                pygame.event.post(pygame.event.Event(InputHandler.ONLINE_GAME_EVENT))
             else:
                 self.selected_point = self.game_manager.convert_pixel_point_to_board_point()
         elif event.type == pygame.MOUSEBUTTONUP:

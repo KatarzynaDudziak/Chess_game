@@ -1,18 +1,22 @@
 import pygame
+from typing import Union
 
 from pawns import Pawn, WhitePawn, WhiteRook, WhiteKnight, WhiteBishop, WhiteQueen, \
       WhiteKing, BlackPawn, BlackRook, BlackKnight, BlackBishop, BlackQueen, BlackKing
 from board import Board
 from point import Point
 from chess_engine import ChessEngine
+from client import ChessClient
 import utils
 
 
 logger = utils.get_logger(__name__)
-
 class GameRenderer:
-    def  __init__(self, engine: ChessEngine) -> None:
+    
+
+    def  __init__(self, engine: Union[ChessEngine, ChessClient]) -> None:
         self.engine = engine
+        self.board_width = 904
         self.board_width = 904
         self.board_height = 904
         self.square_width = 106
@@ -25,7 +29,6 @@ class GameRenderer:
         self.bg = self.load_and_scale_image("images/board_images/board.png", (self.board_width, self.board_height))
         self.dark_square = self.load_and_scale_image("images/board_images/squareB.png", (self.square_width, self.square_height))
         self.light_square = self.load_and_scale_image("images/board_images/squareW.png", (self.square_width, self.square_height))
-
             
         self.pieces = {
             WhitePawn: self.load_and_scale_image("images/pawnW2.png"),
@@ -55,11 +58,19 @@ class GameRenderer:
         title_rect = title.get_rect(center=(self.board_width//2, self.board_height//2 - 100))
         self.screen.blit(title, title_rect)
         
-        text = self.font.render("Start Game", True, (255, 255, 255))
-        text_rect = text.get_rect(center=(self.board_width//2, self.board_height//2 + 50))
-        self.button_rect = pygame.Rect(text_rect.left - 10, text_rect.top - 10, text_rect.width + 20, text_rect.height + 20)
-        pygame.draw.rect(self.screen, (0, 128, 255), self.button_rect)
-        self.screen.blit(text, text_rect)
+        # Render "Play solo" button
+        solo_text = self.font.render("Play solo", True, (255, 255, 255))
+        solo_rect = solo_text.get_rect(center=(self.board_width//2, self.board_height//2 + 30))
+        self.solo_rect = pygame.Rect(solo_rect.left - 10, solo_rect.top - 10, solo_rect.width + 20, solo_rect.height + 20)
+        pygame.draw.rect(self.screen, (0, 128, 255), self.solo_rect)
+        self.screen.blit(solo_text, solo_rect)
+
+        # Render "Play online" button below "Play solo"
+        online_text = self.font.render("Play online", True, (255, 255, 255))
+        online_rect = online_text.get_rect(center=(self.board_width//2, self.board_height//2 + 100))
+        self.online_rect = pygame.Rect(online_rect.left - 10, online_rect.top - 10, online_rect.width + 20, online_rect.height + 20)
+        pygame.draw.rect(self.screen, (0, 128, 255), self.online_rect)
+        self.screen.blit(online_text, online_rect)
 
     def draw_board_and_pieces(self) -> None:
         for row in range(8):
@@ -68,9 +79,10 @@ class GameRenderer:
                 self.screen.blit(square, (self.frame_width + row * self.square_width, \
                                                          self.board_height - self.frame_width - self.square_height - column * self.square_height))
 
-        for y in range(8):
-            for x in range(8):
-                pawn_type = self.engine.get_board()[y][x]
+        board = self.engine.get_board()
+        for y in range(len(board)):
+            for x in range(len(board[y])):
+                pawn_type = board[y][x]
                 if isinstance(pawn_type, Pawn):
                     point = Point(x, y)
                     self.screen.blit(self.pieces[pawn_type.__class__], (self.frame_width + point.x * self.square_width, \
