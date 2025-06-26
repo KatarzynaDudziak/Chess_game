@@ -34,13 +34,12 @@ class ChessServer:
         try:
             client_socket, addr = self.server_socket.accept()
             logger.info(f"Connection from {addr} has been established.")
+            board_state = self.game.get_board()
             if "player1" not in self.players:
                 self.players["player1"] = client_socket
-                board_state = self.game.get_board()
                 self.send_data(client_socket, pickle.dumps({"type": MessageType.BOARD, "data": board_state}))
             elif "player2" not in self.players:
                 self.players["player2"] = client_socket
-                self.send_data(self.players["player1"], "Player 2 has joined. Game starting...")
                 self.send_data(client_socket, pickle.dumps({"type": MessageType.BOARD, "data": board_state}))
         except Exception as e:
             logger.info(f"An error occurred: {e}")
@@ -94,8 +93,6 @@ class ChessServer:
                 if move is None:
                     if self.stop_event.is_set():
                         break
-                    continue
-
                 logger.info(f"{player_id} made a move: {move}")
             except Exception as e:
                 logger.info(f"An error occurred with {player_id}: {e}")

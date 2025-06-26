@@ -80,6 +80,9 @@ class GameRenderer:
                                                          self.board_height - self.frame_width - self.square_height - column * self.square_height))
 
         board = self.engine.get_board()
+        if board is None:
+            logger.error("Board is None, cannot draw pieces.")
+            return
         for y in range(len(board)):
             for x in range(len(board[y])):
                 pawn_type = board[y][x]

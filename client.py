@@ -21,13 +21,14 @@ class ChessClient:
     def connect(self):
         self.client_socket.connect((self.server_ip, self.server_port))
         try:
-            message_handler_thread = Thread(target=self.run_client)
-            message_handler_thread.daemon = True
-            message_handler_thread.start()
-            self.run_client()
+            self.message_handler_thread = Thread(target=self.run_client)
+            self.message_handler_thread.daemon = True
+            self.message_handler_thread.start()
             logger.info(f"Connected to server at {self.server_ip}:{self.server_port}")
+            self.message_handler_thread.join(timeout=1) #check if it is necessary to join the thread here
         except Exception as e:
             logger.error(f"Error connecting to server: {e}")
+            self.active_player = False
 
     def send_data(self, move):
         self.client_socket.sendall(pickle.dumps(move))
@@ -46,15 +47,20 @@ class ChessClient:
 
     def run_client(self):
         while self.active_player:
-            response = self.recv_data()
-            if not response:
-                break
-            if response["type"] == MessageType.BOARD:
-                self.board = response["data"]
-                self.update_board()
-            elif response["type"] == MessageType.MOVE:
-                move = self.response["data"]
-                self.send_data(move)
+            try:
+                response = self.recv_data()
+                if response is None:
+                    logger.info("No response from server, closing connection.")
+                    self.active_player = False
+                    break
+                if response["type"] == MessageType.BOARD:
+                    self.board = response["data"]
+                    self.update_board()
+                elif response["type"] == MessageType.MOVE:
+                    move = self.response["data"]
+                    self.send_data(move)
+            except KeyboardInterrupt as e:
+                logger.error(f"{e}")
+                self.active_player = False
         self.client_socket.close()
         logger.info("Client connection closed.")
-        self.active_player = False
