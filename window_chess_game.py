@@ -6,6 +6,8 @@ from chess_engine import ChessEngine
 from game_manager import GameManager
 from game_renderer import GameRenderer
 from input_handler import InputHandler
+from chess_server import MessageType
+
 
 logger = utils.get_logger(__name__)
 

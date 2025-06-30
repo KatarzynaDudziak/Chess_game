@@ -3,7 +3,7 @@ import utils
 from threading import Thread
 import pickle
 
-from server import MessageType
+from chess_server import MessageType
 
 
 logger = utils.get_logger(__name__) 
@@ -57,7 +57,7 @@ class ChessClient:
                     self.board = response["data"]
                     self.update_board()
                 elif response["type"] == MessageType.MOVE:
-                    move = self.response["data"]
+                    move = response["data"]
                     self.send_data(move)
             except KeyboardInterrupt as e:
                 logger.error(f"{e}")
